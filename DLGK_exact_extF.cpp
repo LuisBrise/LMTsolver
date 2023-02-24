@@ -9,7 +9,8 @@
 //   Also, the integral in frequencies is calculated via Gauss - Kronrod using
 //   a partition set to fast convergence. The results are written to a file named "DL*.dat". 
 //  
-//	flags g++ -o DLGK_exact_extF.out DLGK_exact_extF.cpp -lcomplex_bessel -w
+//	flags 
+//      g++ -o DLGK_exact_extF.out DLGK_exact_extF.cpp -lcomplex_bessel -w
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (22/02/2023)
@@ -510,6 +511,7 @@ for (int l = 1; l <= Lmax; l++){
 
 for (int rr = 0; rr < 6; ++rr){
 dLdwx[rr] = 0.;
+dLdwy[rr] = 0.;
 dLdwz[rr] = 0.;
 }
 
@@ -609,10 +611,10 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IHCSfr[0] =  0;  
 
-                    IECSfr[1] =  -(dm2-dm1)*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)IV1 - (dl1-dm1+1)*IW2 ) 
+                    IECSfr[1] =  -(dm2-dm1)*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
                                 + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 );
 
-                    IHCSfr[1] =  -(dm2-dm1)*r*r*dl2*(dl2+1)*( -De[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)IV1 - (dl1-dm1+1)*IW2 ) 
+                    IHCSfr[1] =  -(dm2-dm1)*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
                                 + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 ); 
 
                     IECSfr[2] =  0; 
@@ -635,10 +637,10 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IECCfr[1] =  1i*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)IV1 - (dl1-dm1+1)*IW2 ) 
+                    IECCfr[1] =  1i*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
                                 + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 );
 
-                    IHCCfr[1] =  1i*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)IV1 - (dl1-dm1+1)*IW2 ) 
+                    IHCCfr[1] =  1i*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
                                 + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 ); 
 
 
@@ -693,10 +695,10 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     IHSfr[0] = 0; //G
 
 
-                    IESfr[1] = 2*1i*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)IM1 - (dl1-dm1+1)ID2 ) 
+                    IESfr[1] = 2.*1i*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IM1 - (dl1-dm1+1)*ID2 ) 
                                 + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*ID1 ); // G of "Good" cheked with TestGKL.cpp
 
-                    IHSfr[1] = 2*1i*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)IM1 - (dl1-dm1+1)ID2 ) 
+                    IHSfr[1] = 2.*1i*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IM1 - (dl1-dm1+1)*ID2 ) 
                                 + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*ID1 ); //G
 
 
@@ -707,7 +709,8 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IESfr[3] = 0; // G of "Good" cheked with TestGKL.cpp
 
-                    IHSfr[3] = 0; //G }  
+                    IHSfr[3] = 0; //G 
+                }  
                                               
                 else{
                   for (int rr = 0; rr < 4; ++rr){
@@ -720,32 +723,30 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
                      
-                    dLdwx[0] += (1./(4.*Pi))*((0.5*(IEStr[2] - IECCfr[2] - [2]) + IECtr[2] - IECSfr[2]).real()
-                                            + (0.5*(IEStr[3] - IECCfr[3] - [3]) + IECtr[3] - IECSfr[3])).real();
-                    dLdwz[0] += (1./(4.*Pi))*((0.5*(IESfr[2] - [2] - [2]) - [2]).real()
-                                            + (0.5*(IESfr[3] - [3] - [3]) - [3])).real();
+                    dLdwx[0] += (1./(4.*Pi))*(1i).real();
+                    dLdwz[0] += (1./(4.*Pi))*(1i).real();
 
-                    dLdwx[1] +=  (1./(4.*Pi))*((0.5*(IHStr[2] - IHCCfr[2] - [2]) + IHCtr[2] - IHCSfr[2]).real()
-                                             + (0.5*(IHStr[3] - IHCCfr[3] - [3]) + IHCtr[3] - IHCSfr[3])).real();
-                    dLdwz[1] +=  (1./(4.*Pi))*((0.5*(IHSfr[2] - [2] - [2]) - [2]).real()
-                                             + (0.5*(IHSfr[3] - [3] - [3]) - [3])).real();
+                    dLdwx[1] +=  (1./(4.*Pi))*(1i).real();
+                    dLdwz[1] +=  (1./(4.*Pi))*(1i).real();
 
-                    dLdwx[2] +=  (1./(4.*Pi))*((0.5*(IEStr[0] - IECCfr[0] - [0]) + IECtr[0] - IECSfr[0])).real();
-                    dLdwz[2] +=  (1./(4.*Pi))*((0.5*(IESfr[0] - [0] - [0]) - [0])).real();
+                    dLdwx[2] +=  (1./(4.*Pi))*(1i).real();
+                    dLdwz[2] +=  (1./(4.*Pi))*(1i).real();
 
-                    dLdwx[3] +=  (1./(4.*Pi))*((0.5*(IHStr[0] - IHCCfr[0] - [0]) + IHCtr[0] - IHCSfr[0])).real();
-                    dLdwz[3] +=  (1./(4.*Pi))*((0.5*(IHSfr[0] - [0] - [0]) - [0])).real();
+                    dLdwx[3] +=  (1./(4.*Pi))*(1i).real();
+                    dLdwz[3] +=  (1./(4.*Pi))*(1i).real();
 
                     // ONLY THE FOLLOWING DLDW ARE CORRECT --------------->
 
-                    dLdwx[4] +=  (1./(4.*Pi))*((0.5*(IEStr[1] - IECCfr[1] - [1]) + IECtr[1] - IECSfr[1])).real();
-                    dLdwz[4] +=  (1./(4.*Pi))*((0.5*(IESfr[1] - [1] - [1]) - [1])).real();
+                    dLdwx[4] +=  (1./(4.*Pi))*( IEStr[1] + IECCfr[1] ).real();
+                    dLdwy[4] +=  (1./(4.*Pi))*( IECtr[1] - IECSfr[1] ).real();
+                    dLdwz[4] +=  (1./(4.*Pi))*( IESfr[1] ).real();
 
-                    dLdwx[5] +=  (1./(4.*Pi))*((0.5*(IHStr[1] - IHCCfr[1] - [1]) + IHCtr[1] - IHCSfr[1])).real();
-                    dLdwz[5] +=  (1./(4.*Pi))*((0.5*(IHSfr[1] - [1] - [1]) - [1])).real();
+                    dLdwx[5] +=  (1./(4.*Pi))*( IHStr[1] + IHCCfr[1] ).real();
+                    dLdwy[5] +=  (1./(4.*Pi))*( IHCtr[1] - IHCSfr[1] ).real();
+                    dLdwz[5] +=  (1./(4.*Pi))*( IHSfr[1] ).real();
 
-
-
+                    cout << "DLx = " << -(dm2-dm1)*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
+                                + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 ) << endl;
 
 
             } // for m2
@@ -759,6 +760,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 for (int rr = 0; rr < 6; ++rr){ 
   DLx[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dLdwx[rr];
+  DLy[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dLdwy[rr];
   DLz[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dLdwz[rr];
 }
 
@@ -768,7 +770,9 @@ for (int rr = 0; rr < 6; ++rr){
 // Here print the dpdw's, for each, w, l
 fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dLdwx[0],dLdwx[1],dLdwz[0],dLdwz[1], dLdwx[2], dLdwx[3], dLdwz[2], dLdwz[3],dLdwx[4],dLdwx[5],dLdwz[4],dLdwz[5]);
 
-cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
+//cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
+//cout << "I ext = " << IHCCfr[1].real() << "  " << IECCfr[1].real() << endl;
+
 
 }// for w
 
@@ -792,6 +796,9 @@ cout << "DLHsz : " << DLz[3] << endl;
 cout << endl;
 cout << "DLEex : " << DLx[4] << endl;
 cout << "DLHex : " << DLx[5] << endl;                // prints result
+cout << endl;
+cout << "DLEey : " << DLy[4] << endl;
+cout << "DLHey : " << DLy[5] << endl;                // prints result
 cout << endl;
 cout << "DLEez : " << DLz[4] << endl;
 cout << "DLHez : " << DLz[5] << endl;
