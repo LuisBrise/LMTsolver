@@ -440,7 +440,6 @@ Omegas(xi, xk, xg);
 
 double w, k0;
 
-
 char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
 sprintf(filename, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_extF2.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fpp = fopen(filename,"w+");
@@ -462,9 +461,7 @@ sprintf(filenamex, "Results/dldw_a%.2gnm_v%.2g_b%.2gnm_extF2.dat", a/(1.*nm), vv
 FILE *fpx = fopen(filenamex,"w+");
 fprintf(fpx,"Angular Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
 fprintf(fpx,"\n");
-fprintf(fpx,"         w(au)                   dlEdwx                 dlHdwx                 dlEdwz                dlHdwz                  dlEsdwx                dlHsdwx                dlEsdwz                dlHsdwz              dlEedwx                dlHedwx                dlEedwz                dlHedwz\n");
-
-
+fprintf(fpx,"         w(au)                   dlEdwx                 dlHdwx                   dlEdwy                   dlHdwy                 dlEdwz                dlHdwz                  dlEsdwx                dlHsdwx                   dlEsdwy                   dlHsdwy                dlEsdwz                dlHsdwz              dlEedwx                dlHedwx                   dlEedwy                   dlHedwy                dlEedwz                dlHedwz\n");
 
 dcomplex AA[Lmax][2*Lmax+1], BB[Lmax][2*Lmax+1];
 dcomplex aa, bb;
@@ -725,10 +722,14 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                      IHrrx[rr] = 0.;
                      IErtx[rr] = 0.;
                      IHrtx[rr] = 0.;
+                     IErty[rr] = 0.;
+                     IHrty[rr] = 0.;
                      IEffx[rr] = 0.;
                      IHffx[rr] = 0.;
                      IErfx[rr] = 0.;
                      IHrfx[rr] = 0.;
+                     IErfy[rr] = 0.;
+                     IHrfy[rr] = 0.;
                      IEttx[rr] = 0.;
                      IHttx[rr] = 0.;
                     }
@@ -933,9 +934,8 @@ for (int rr = 0; rr < 6; ++rr){
 
 
 
-
 // Here print the dldw's, for each, w, l
-fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dldwx[0],dldwx[1],dldwz[0],dldwz[1], dldwx[2], dldwx[3], dldwz[2], dldwz[3],dldwx[4],dldwx[5],dldwz[4],dldwz[5]);
+fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dldwx[0],dldwx[1],dldwy[0],dldwy[1],dldwz[0],dldwz[1], dldwx[2], dldwx[3],dldwy[2], dldwy[3], dldwz[2], dldwz[3],dldwx[4],dldwx[5],dldwx[4],dldwx[5],dldwz[4],dldwz[5]);
 
 cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
 
@@ -987,7 +987,7 @@ cout << endl;
 cout << "Lmax = " << Lmax << endl;
 cout << endl;
 
-double b = 1.5*nm;                        
+double b = 5.5*nm;                        
 double a = 1.*nm;                        
 double r = 1.05*nm;
 double v = 0.5;
