@@ -457,8 +457,8 @@ fprintf(fppe,"       errDPEx                   errDPHx                 errDPEz  
 char filenamex[sizeof "dpdw_a1nm_v0.99c_b1.5nm.dat"];
 sprintf(filenamex, "dpdw_a%.2gnm_v%.2g_b%.2gnm.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fpx = fopen(filenamex,"w+");
-fprintf(fppe,"Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
-fprintf(fppe,"\n");
+fprintf(fpx,"Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
+fprintf(fpx,"\n");
 fprintf(fpx,"         w(au)                   dpEdwx                 dpHdwx                 dpEdwz                dpHdwz                  dpEsdwx                dpHsdwx                dpEsdwz                dpHsdwz              dpEedwx                dpHedwx                dpEedwz                dpHedwz\n");
 
 

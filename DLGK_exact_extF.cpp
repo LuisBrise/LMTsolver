@@ -58,7 +58,7 @@ double w1 = 0.;
 double w2 = .3;
 double w3 = .4;
 double w4 = 2.;
-double w5 = 60.; // Omega cut for freq. integral
+double w5 = 70.; // Omega cut for freq. integral
 
 int iw1 = 2*nw1 + 1;
 int iw2 = 2*(nw1 + nw2) + 2;
@@ -439,7 +439,7 @@ Omegas(xi, xk, xg);
 double w, k0;
 
 
-char filename[sizeof "DL_a1nm_v0.99c_b1.5nm_extF.dat"];
+char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF.dat"];
 sprintf(filename, "DL_a%.2gnm_v%.2g_b%.2gnm_extF.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fpp = fopen(filename,"w+");
 fprintf(fpp,"Total angular momentum transfered, a: %.2gnm    v: %.2gc   b: %.2gnm   Lmax: %d  \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
@@ -447,7 +447,7 @@ fprintf(fpp,"\n");
 fprintf(fpp,"         DLEx                    DLHx                  DLEz                  DLHz            DLEsx                   DLHsx                 DLEsz                 DLHsz\n");
 
 
-char filenamer[sizeof "DL_a1nm_v0.99c_b1.5nm_error_extF.dat"];
+char filenamer[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_error_extF.dat"];
 sprintf(filenamer, "DL_a%.2gnm_v%.2g_b%.2gnm_error_extF.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fppe = fopen(filenamer,"w+");
 fprintf(fppe,"Total angular momentum transfered, a: %.2gnm    v: %.2gc   b: %.2gnm      Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
@@ -455,7 +455,7 @@ fprintf(fppe,"\n");
 fprintf(fppe,"       errDLEx                   errDLHx                 errDLEz                errDLHz        errDLEsx               errDLHsx               errDLEsz              errDLHsz\n");
 
 
-char filenamex[sizeof "dLdw_a1nm_v0.99c_b1.5nm_extF.dat"];
+char filenamex[sizeof "Results/dLdw_a1nm_v0.99c_b1.5nm_extF.dat"];
 sprintf(filenamex, "dLdw_a%.2gnm_v%.2g_b%.2gnm_extF.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fpx = fopen(filenamex,"w+");
 fprintf(fpx,"Angular Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
@@ -477,6 +477,7 @@ for (int l = 1; l <= Lmax; ++l){
 
 for (int i = 0; i < 6; ++i){
 DLx[i] = 0.;
+DLy[i] = 0.;
 DLz[i] = 0.;
 }
 
@@ -515,8 +516,6 @@ dLdwy[rr] = 0.;
 dLdwz[rr] = 0.;
 }
 
-
-
 for (int l1 = 1; l1 <= Lmax; ++l1){
      dl1 = 1.*l1; 
 for (int l2 = 1; l2 <= Lmax; ++l2){
@@ -525,7 +524,6 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
               dm1 = 1.*m1;
               for (int m2 = -l2; m2 <= l2; ++m2){
                    dm2 = 1.*m2;
-
 
 
                     if(m2 == m1+1 || m2 == m1-1){
@@ -555,11 +553,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     IHStr[0] = 0; 
 
 
-                    IEStr[1] = 1i*(dm2-dm1)*r*r*dl2*(dl2+1)*( -CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
-                                - DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1)*IW1 -(dl1-dm1+1)*IU2 ) ); 
+                    IEStr[1] = 1i*(dm1-dm2)*r*r*dl2*(dl2+1.)*( -CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
+                                - DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1.)*IW1 -(dl1-dm1+1.)*IU2 ) ); 
 
-                    IHStr[1] = 1i*(dm2-dm1)*r*r*dl2*(dl2+1)*( +DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
-                                - CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1)*IW1 -(dl1-dm1+1)*IU2 ) );
+                    IHStr[1] = 1i*(dm1-dm2)*r*r*dl2*(dl2+1.)*( +DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
+                                - CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1.)*IW1 -(dl1-dm1+1.)*IU2 ) );
 
 
 
@@ -582,11 +580,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IECtr[1] = r*r*dl2*(dl2+1)*( -CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
-                                - DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1)*IW1 -(dl1-dm1+1)*IU2 ) ); 
+                    IECtr[1] = r*r*dl2*(dl2+1.)*( -CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
+                                - DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1.)*IW1 -(dl1-dm1+1.)*IU2 ) ); 
      
-                    IHCtr[1] =  r*r*dl2*(dl2+1)*( +DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
-                                - CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1)*IW1 -(dl1-dm1+1)*IU2 ) );
+                    IHCtr[1] =  r*r*dl2*(dl2+1.)*( +DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*dm1*IU1 
+                                - CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*( (dl1+1.)*IW1 -(dl1-dm1+1.)*IU2 ) );
 
 
 
@@ -611,10 +609,10 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IHCSfr[0] =  0;  
 
-                    IECSfr[1] =  -(dm2-dm1)*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
+                    IECSfr[1] =  -(dm1-dm2)*r*r*dl2*(dl2+1.)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1.)*IV1 - (dl1-dm1+1.)*IW2 ) 
                                 + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 );
 
-                    IHCSfr[1] =  -(dm2-dm1)*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
+                    IHCSfr[1] =  -(dm1-dm2)*r*r*dl2*(dl2+1.)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1.)*IV1 - (dl1-dm1+1.)*IW2 ) 
                                 + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 ); 
 
                     IECSfr[2] =  0; 
@@ -637,10 +635,10 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IECCfr[1] =  1i*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
+                    IECCfr[1] =  1i*r*r*dl2*(dl2+1.)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1.)*IV1 - (dl1-dm1+1.)*IW2 ) 
                                 + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 );
 
-                    IHCCfr[1] =  1i*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
+                    IHCCfr[1] =  1i*r*r*dl2*(dl2+1.)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1.)*IV1 - (dl1-dm1+1.)*IW2 ) 
                                 + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 ); 
 
 
@@ -695,10 +693,10 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     IHSfr[0] = 0; //G
 
 
-                    IESfr[1] = 2.*1i*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IM1 - (dl1-dm1+1)*ID2 ) 
+                    IESfr[1] = 2.*1i*r*r*dl2*(dl2+1.)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1.)*IM1 - (dl1-dm1+1.)*ID2 ) 
                                 + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*ID1 ); // G of "Good" cheked with TestGKL.cpp
 
-                    IHSfr[1] = 2.*1i*r*r*dl2*(dl2+1)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IM1 - (dl1-dm1+1)*ID2 ) 
+                    IHSfr[1] = 2.*1i*r*r*dl2*(dl2+1.)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1.)*IM1 - (dl1-dm1+1.)*ID2 ) 
                                 + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*ID1 ); //G
 
 
@@ -739,14 +737,13 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     dLdwx[4] +=  (1./(4.*Pi))*( IEStr[1] + IECCfr[1] ).real();
                     dLdwy[4] +=  (1./(4.*Pi))*( IECtr[1] - IECSfr[1] ).real();
-                    dLdwz[4] +=  (1./(4.*Pi))*( IESfr[1] ).real();
+                    dLdwz[4] +=  (1./(4.*Pi))*IESfr[1].real();
 
                     dLdwx[5] +=  (1./(4.*Pi))*( IHStr[1] + IHCCfr[1] ).real();
                     dLdwy[5] +=  (1./(4.*Pi))*( IHCtr[1] - IHCSfr[1] ).real();
                     dLdwz[5] +=  (1./(4.*Pi))*( IHSfr[1] ).real();
 
-                    cout << "DLx = " << -(dm2-dm1)*r*r*dl2*(dl2+1)*( +CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0))*( (dl1+1)*IV1 - (dl1-dm1+1)*IW2 ) 
-                                + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0))*IW1 ) << endl;
+                    //cout << "DLx = " << dLdwx[4] << endl;
 
 
             } // for m2
@@ -782,18 +779,18 @@ fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g 
 
 
 cout << endl;
-cout << "DLEx : " << DLx[0] << endl;
-cout << "DLHx : " << DLx[1] << endl;                // prints result
-cout << endl;
-cout << "DLEz : " << DLz[0] << endl;
-cout << "DLHz : " << DLz[1] << endl;
-cout << endl;
-cout << "DLEsx : " << DLx[2] << endl;
-cout << "DLHsx : " << DLx[3] << endl;                // prints result
-cout << endl;
-cout << "DLEsz : " << DLz[2] << endl;
-cout << "DLHsz : " << DLz[3] << endl;
-cout << endl;
+//cout << "DLEx : " << DLx[0] << endl;
+//cout << "DLHx : " << DLx[1] << endl;                // prints result
+//cout << endl;
+//cout << "DLEz : " << DLz[0] << endl;
+//cout << "DLHz : " << DLz[1] << endl;
+//cout << endl;
+//cout << "DLEsx : " << DLx[2] << endl;
+//cout << "DLHsx : " << DLx[3] << endl;                // prints result
+//cout << endl;
+//cout << "DLEsz : " << DLz[2] << endl;
+//cout << "DLHsz : " << DLz[3] << endl;
+//cout << endl;
 cout << "DLEex : " << DLx[4] << endl;
 cout << "DLHex : " << DLx[5] << endl;                // prints result
 cout << endl;
@@ -822,7 +819,7 @@ cout << endl;
 cout << "Lmax = " << Lmax << endl;
 cout << endl;
 
-double b = 1.5*nm;                        
+double b = 2.5*nm;                        
 double a = 1.*nm;                        
 double r = 1.05*nm;
 double v = 0.5;
