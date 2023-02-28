@@ -10,7 +10,7 @@
 //   a partition set to fast convergence. The results are written to a file named "DL*.dat". 
 //  
 //	flags 
-//      g++ -o DLGK_exact_extF2.out DLGK_exact_extF2.cpp -lcomplex_bessel -w
+//      g++ -o DLGK_exact_extF2.out DLGK_exact_extF2.cpp -lcomplex_bessel -w && ./DLGK_exact_extF2.out
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
@@ -44,21 +44,21 @@ double Gamma  = 0.00555;
 //************************************************
 // Maximum number of multipole to take into account
 
-const int Lmax = 5;
+const int Lmax = 2;
 
 // Order N of the gaussian quadrature (must be odd), the integral is
 // performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
-const int nw1 = 51;   
-const int nw2 = 201;   
-const int nw3 = 51;                   // Drude Al
-const int nw4 = 51;  
+const int nw1 = 61;   
+const int nw2 = 211;   
+const int nw3 = 61;                   // Drude Al
+const int nw4 = 61;  
 const int NN = nw1 + nw2 + nw3 + nw4;
 
 double w1 = 0.;
 double w2 = .3;
 double w3 = .4;
 double w4 = 2.;
-double w5 = 60.; // Omega cut for freq. integral
+double w5 = 40.; // Omega cut for freq. integral
 
 int iw1 = 2*nw1 + 1;
 int iw2 = 2*(nw1 + nw2) + 2;
@@ -511,6 +511,7 @@ for (int l = 1; l <= Lmax; l++){
 
 for (int rr = 0; rr < 6; ++rr){
 dldwx[rr] = 0.;
+dldwy[rr] = 0.;
 dldwz[rr] = 0.;
 }
 
@@ -579,11 +580,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IErtx[1] =  1i*(dm1-dm2)*(- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 - (dl1-dm1+1.)*IU2)
-                               - CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    IErtx[1] =  1i*(dm1-dm2)*(- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
+                              - (dl1-dm1+1.)*IU2)-CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
      
-                    IHrtx[1] =  1i*(dm1-dm2)*(- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1- (dl1-dm1+1.)*IU2)
-                               + DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    IHrtx[1] =  1i*(dm1-dm2)*(- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
+                              - (dl1-dm1+1.)*IU2)+ DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
 
 
 
@@ -606,11 +607,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IErty[1] =  (- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 - (dl1-dm1+1.)*IU2)
-                               - CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    IErty[1] =  (- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
+                              - (dl1-dm1+1.)*IU2) - CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
      
-                    IHrty[1] =  (- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1- (dl1-dm1+1.)*IU2)
-                               + DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    IHrty[1] =  (- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
+                              - (dl1-dm1+1.)*IU2) + DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
 
 
 
@@ -635,11 +636,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IHrfx[0] =  0.;  
 
-                    IErfx[1] =  1i*( CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 - (dl1-dm1+1.)*IW2)
-                                      +    DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
+                    IErfx[1] =  1i*( CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
+                              - (dl1-dm1+1.)*IW2) + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
 
-                    IHrfx[1] =  1i*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 - (dl1-dm1+1.)*IW2)
-                                          + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
+                    IHrfx[1] =  1i*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
+                              - (dl1-dm1+1.)*IW2)+ CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
 
                     IErfx[2] =  0.; 
 
@@ -655,11 +656,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IHrfy[0] =  0.;  
 
-                    IErfy[1] =  -(dm1-dm2)*( CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 - (dl1-dm1+1.)*IW2)
-                                      +    DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
+                    IErfy[1] =  -(dm1-dm2)*( CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
+                              - (dl1-dm1+1.)*IW2)+    DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
 
-                    IHrfy[1] =  -(dm1-dm2)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 - (dl1-dm1+1.)*IW2)
-                                          + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
+                    IHrfy[1] =  -(dm1-dm2)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
+                              - (dl1-dm1+1.)*IW2)+ CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
 
                     IErfy[2] =  0.; 
 
@@ -784,11 +785,11 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
    
                     IHrtz[0] = 0.; //G
 
-                    IErtz[1] = -( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2)
-                             +    CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1);  //G
+                    IErtz[1] =  -( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
+                              - (dl1-dm1+1.)*ID2)+ CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1);  //G
    
-                    IHrtz[1] = (- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2)
-                             +    DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1); //G
+                    IHrtz[1] = (- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
+                              - (dl1-dm1+1.)*ID2)+ DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1); //G
 
                     IErtz[2] = 0.;  //G
    
@@ -807,17 +808,9 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IEffz[1] =  DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*df[1][l2-1])*df[1][l1-1]*dm1*dm2*IY1 
-                              + CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*df[1][l2-1])*dz[1][l1-1]*dm2*((dl1+1.)*IX1 - (dl1-dm1+1.)*IY2)
-                              + DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*df[1][l1-1]*dm1*((dl2+1.)*IX1 - (dl2-dm2+1.)*IY3)
-                              + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*dz[1][l1-1]*((dl1+1.)*(dl2+1.)*IZ1 - (dl2+1.)*(dl1-dm1+1.)*IX2
-                              - (dl1+1.)*(dl2-dm2+1.)*IX3  + (dl2-dm2+1.)*(dl1-dm1+1.)*IY4);  //G
+                    IEffz[1] =  0.;  //G
 
-                    IHffz[1] =  CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*df[1][l2-1])*df[1][l1-1]*dm1*dm2*IY1 
-                              - DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*df[1][l2-1])*dz[1][l1-1]*dm2*((dl1+1.)*IX1 - (dl1-dm1+1.)*IY2)
-                              - CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*df[1][l1-1]*dm1*((dl2+1.)*IX1 - (dl2-dm2+1.)*IY3)
-                              + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*dz[1][l1-1]*((dl1+1.)*(dl2+1.)*IZ1 - (dl2+1.)*(dl1-dm1+1.)*IX2
-                              - (dl1+1.)*(dl2-dm2+1.)*IX3  +  (dl2-dm2+1.)*(dl1-dm1+1.)*IY4);  //G
+                    IHffz[1] =  0.;  //G
 
 
 
@@ -845,17 +838,9 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IEttz[1] =  CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*dz[1][l1-1]*dm1*dm2*IY1 
-                              + CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*df[1][l2-1])*dz[1][l1-1]*dm1*((dl2+1.)*IX1 - (dl2-dm2+1.)*IY3)
-                              + DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*df[1][l1-1]*dm2*((dl1+1.)*IX1 - (dl1-dm1+1.)*IY2)
-                              + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*df[1][l2-1])*df[1][l1-1]*((dl1+1.)*(dl2+1.)*IZ1 - (dl2+1.)*(dl1-dm1+1.)*IX2
-                              - (dl1+1.)*(dl2-dm2+1.)*IX3  + (dl2-dm2+1.)*(dl1-dm1+1.)*IY4); 
+                    IEttz[1] =  0.; 
 
-                    IHttz[1] =  DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*dz[1][l1-1]*dm1*dm2*IY1 
-                              - DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*df[1][l2-1])*dz[1][l1-1]*dm1*((dl2+1.)*IX1 - (dl2-dm2+1.)*IY3)
-                              - CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*df[1][l1-1]*dm2*((dl1+1.)*IX1 - (dl1-dm1+1.)*IY2)
-                              + CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*df[1][l2-1])*df[1][l1-1]*((dl1+1.)*(dl2+1.)*IZ1 - (dl2+1.)*(dl1-dm1+1.)*IX2
-                              - (dl1+1.)*(dl2-dm2+1.)*IX3  + (dl2-dm2+1.)*(dl1-dm1+1.)*IY4);  
+                    IHttz[1] =  0.;  
 
 
 
@@ -887,31 +872,31 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
                      
-                    dldwx[0] += (1./(4.*Pi))*((0.5*(IErrx[2] - IEttx[2] - IEffx[2]) + IErtx[2] - IErfx[2]).real()
-                                            + (0.5*(IErrx[3] - IEttx[3] - IEffx[3]) + IErtx[3] - IErfx[3])).real();
-                    dldwz[0] += (1./(2.*Pi))*((0.5*(IErrz[2] - IEttz[2] - IEffz[2]) - IErtz[2]).real()
-                                            + (0.5*(IErrz[3] - IEttz[3] - IEffz[3]) - IErtz[3])).real();
+                    //dldwx[0] += (1./(4.*Pi))*((0.5*(IErrx[2] - IEttx[2] - IEffx[2]) + IErtx[2] - IErfx[2]).real()
+                    //                        + (0.5*(IErrx[3] - IEttx[3] - IEffx[3]) + IErtx[3] - IErfx[3])).real();
+                    //dldwz[0] += (1./(2.*Pi))*((0.5*(IErrz[2] - IEttz[2] - IEffz[2]) - IErtz[2]).real()
+                    //                        + (0.5*(IErrz[3] - IEttz[3] - IEffz[3]) - IErtz[3])).real();
 
-                    dldwx[1] +=  (1./(4.*Pi))*((0.5*(IHrrx[2] - IHttx[2] - IHffx[2]) + IHrtx[2] - IHrfx[2]).real()
-                                             + (0.5*(IHrrx[3] - IHttx[3] - IHffx[3]) + IHrtx[3] - IHrfx[3])).real();
-                    dldwz[1] +=  (1./(2.*Pi))*((0.5*(IHrrz[2] - IHttz[2] - IHffz[2]) - IHrtz[2]).real()
-                                             + (0.5*(IHrrz[3] - IHttz[3] - IHffz[3]) - IHrtz[3])).real();
+                    //dldwx[1] +=  (1./(4.*Pi))*((0.5*(IHrrx[2] - IHttx[2] - IHffx[2]) + IHrtx[2] - IHrfx[2]).real()
+                    //                         + (0.5*(IHrrx[3] - IHttx[3] - IHffx[3]) + IHrtx[3] - IHrfx[3])).real();
+                    //dldwz[1] +=  (1./(2.*Pi))*((0.5*(IHrrz[2] - IHttz[2] - IHffz[2]) - IHrtz[2]).real()
+                    //                         + (0.5*(IHrrz[3] - IHttz[3] - IHffz[3]) - IHrtz[3])).real();
 
-                    dldwx[2] +=  (1./(4.*Pi))*((0.5*(IErrx[0] - IEttx[0] - IEffx[0]) + IErtx[0] - IErfx[0])).real();
-                    dldwz[2] +=  (1./(2.*Pi))*((0.5*(IErrz[0] - IEttz[0] - IEffz[0]) - IErtz[0])).real();
+                    //dldwx[2] +=  (1./(4.*Pi))*((0.5*(IErrx[0] - IEttx[0] - IEffx[0]) + IErtx[0] - IErfx[0])).real();
+                    //dldwz[2] +=  (1./(2.*Pi))*((0.5*(IErrz[0] - IEttz[0] - IEffz[0]) - IErtz[0])).real();
 
-                    dldwx[3] +=  (1./(4.*Pi))*((0.5*(IHrrx[0] - IHttx[0] - IHffx[0]) + IHrtx[0] - IHrfx[0])).real();
-                    dldwz[3] +=  (1./(2.*Pi))*((0.5*(IHrrz[0] - IHttz[0] - IHffz[0]) - IHrtz[0])).real();
+                    //dldwx[3] +=  (1./(4.*Pi))*((0.5*(IHrrx[0] - IHttx[0] - IHffx[0]) + IHrtx[0] - IHrfx[0])).real();
+                    //dldwz[3] +=  (1./(2.*Pi))*((0.5*(IHrrz[0] - IHttz[0] - IHffz[0]) - IHrtz[0])).real();
 
                     // ONLY the following are right
 
-                    dldwx[4] +=  (1./(4.*Pi))*( IErtx[1] +IErfx[1] ).real();
-                    dldwy[4] +=  (1./(4.*Pi))*( IErty[1] -IErfy[1] ).real();
-                    dldwz[4] +=  (1./(2.*Pi))*((0.5*(IErrz[1] - IEttz[1] - IEffz[1]) - IErtz[1])).real();
+                    dldwx[4] +=  (1./(4.*Pi))*r*r*r*( IErtx[1] + IErfx[1] ).real();
+                    dldwy[4] +=  (1./(4.*Pi))*r*r*r*( IErty[1] - IErfy[1] ).real();
+                    dldwz[4] +=  (1./(4.*Pi))*r*r*r*(IErtz[1]).real();
 
-                    dldwx[5] +=  (1./(4.*Pi))*(IHrtx[1] +IHrfx[1]).real();
-                    dldwy[5] +=  (1./(4.*Pi))*(IHrty[1] -IHrfy[1]).real();
-                    dldwz[5] +=  (1./(2.*Pi))*((0.5*(IHrrz[1] - IHttz[1] - IHffz[1]) - IHrtz[1])).real();
+                    dldwx[5] +=  (1./(4.*Pi))*r*r*r*(IHrtx[1] +IHrfx[1]).real();
+                    dldwy[5] +=  (1./(4.*Pi))*r*r*r*(IHrty[1] -IHrfy[1]).real();
+                    dldwz[5] +=  (1./(4.*Pi))*r*r*r*(IHrtz[1]).real();
 
 
 
@@ -944,7 +929,6 @@ cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
 // Here print the total momentum
 fprintf(fpp,"%.17g %.17g %.17g %.17g  %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].real(),DLx[1].real(),DLz[0].real(),DLz[1].real(), DLx[2].real(),DLx[3].real(),DLz[2].real(),DLz[3].real(),DLx[4].real(),DLx[5].real(),DLz[4].real(),DLz[5].real());
 fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].imag(),DLx[1].imag(),DLz[0].imag(),DLz[1].imag(), DLx[2].imag(),DLx[3].imag(),DLz[2].imag(),DLz[3].imag(),DLx[4].imag(),DLx[5].imag(),DLz[4].imag(),DLz[5].imag());
-
 
 cout << endl;
 cout << "DLEx : " << DLx[0] << endl;
