@@ -888,33 +888,38 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                      IHffz[rr] = 0.;
                     }
                    }
+                   /* Integrants (I), 0 -> Scat
+                                       1 -> Ext
+                                       2 -> Ext-Scat 
+                                       3 -> Scat-Ext (second is conjugated)*/
 
 
-                        /* Integrants, 0 -> Ext-Scat (Electric)
+                        /* Integrants (dldw), 0 -> Ext-Scat (Electric)
                                        1 -> Ext-Scat (Magnetic)
                                        2 -> Scat-Scat (Electric) 
                                        3 -> Scat-Scat (Magnetic)
                                        4 -> Ext-Ext (Electric)
                                        5 -> Ext-Ext (Magnetic)*/
 
-                     
-                    //dldwx[0] += (1./(4.*Pi))*((0.5*(IErrx[2] - IEttx[2] - IEffx[2]) + IErtx[2] - IErfx[2]).real()
-                    //                        + (0.5*(IErrx[3] - IEttx[3] - IEffx[3]) + IErtx[3] - IErfx[3])).real();
-                    //dldwz[0] += (1./(2.*Pi))*((0.5*(IErrz[2] - IEttz[2] - IEffz[2]) - IErtz[2]).real()
-                    //                        + (0.5*(IErrz[3] - IEttz[3] - IEffz[3]) - IErtz[3])).real();
+                    dldwx[0] +=  (1./(4.*Pi))*r*r*r*(( IErtx[2] + IErfx[2] ).real()
+                                                    +( IErtx[3] + IErfx[3] ).real());
+                    dldwy[0] +=  (1./(4.*Pi))*r*r*r*(( IErty[2] - IErfy[2] ).real()
+                                                    +( IErty[3] - IErfy[3] ).real());
+                    dldwz[0] +=  (1./(4.*Pi))*r*r*r*(IErtz[2] + IErtz[3]).real();
 
-                    //dldwx[1] +=  (1./(4.*Pi))*((0.5*(IHrrx[2] - IHttx[2] - IHffx[2]) + IHrtx[2] - IHrfx[2]).real()
-                    //                         + (0.5*(IHrrx[3] - IHttx[3] - IHffx[3]) + IHrtx[3] - IHrfx[3])).real();
-                    //dldwz[1] +=  (1./(2.*Pi))*((0.5*(IHrrz[2] - IHttz[2] - IHffz[2]) - IHrtz[2]).real()
-                    //                         + (0.5*(IHrrz[3] - IHttz[3] - IHffz[3]) - IHrtz[3])).real();
+                    dldwx[1] +=  (1./(4.*Pi))*r*r*r*((IHrtx[2] +IHrfx[2]).real()
+                                                    +(IHrtx[3] +IHrfx[3]).real());
+                    dldwy[1] +=  (1./(4.*Pi))*r*r*r*((IHrty[2] -IHrfy[2]).real()
+                                                    +(IHrty[3] -IHrfy[3]).real());
+                    dldwz[1] +=  (1./(4.*Pi))*r*r*r*(IHrtz[2] + IHrtz[3]).real();
 
-                    //dldwx[2] +=  (1./(4.*Pi))*((0.5*(IErrx[0] - IEttx[0] - IEffx[0]) + IErtx[0] - IErfx[0])).real();
-                    //dldwz[2] +=  (1./(2.*Pi))*((0.5*(IErrz[0] - IEttz[0] - IEffz[0]) - IErtz[0])).real();
+                    dldwx[2] +=  (1./(4.*Pi))*r*r*r*( IErtx[0] + IErfx[0] ).real();
+                    dldwy[2] +=  (1./(4.*Pi))*r*r*r*( IErty[0] - IErfy[0] ).real();
+                    dldwz[2] +=  (1./(4.*Pi))*r*r*r*(IErtz[0]).real();
 
-                    //dldwx[3] +=  (1./(4.*Pi))*((0.5*(IHrrx[0] - IHttx[0] - IHffx[0]) + IHrtx[0] - IHrfx[0])).real();
-                    //dldwz[3] +=  (1./(2.*Pi))*((0.5*(IHrrz[0] - IHttz[0] - IHffz[0]) - IHrtz[0])).real();
-
-                    // ONLY the following are right
+                    dldwx[3] +=  (1./(4.*Pi))*r*r*r*(IHrtx[0] +IHrfx[0]).real();
+                    dldwy[3] +=  (1./(4.*Pi))*r*r*r*(IHrty[0] -IHrfy[0]).real();
+                    dldwz[3] +=  (1./(4.*Pi))*r*r*r*(IHrtz[0]).real();
 
                     dldwx[4] +=  (1./(4.*Pi))*r*r*r*( IErtx[1] + IErfx[1] ).real();
                     dldwy[4] +=  (1./(4.*Pi))*r*r*r*( IErty[1] - IErfy[1] ).real();
