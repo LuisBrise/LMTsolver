@@ -11,7 +11,7 @@
 //  
 //	flags 
 //      g++ -o DLGK_exact.out DLGK_exact.cpp -lcomplex_bessel -w 
-//      g++ -o DLGK_exact.out DLGK_exact.cpp -lcomplex_bessel -w && ./DLGK_exact_extF2.out 
+//      g++ -o DLGK_exact.out DLGK_exact.cpp -lcomplex_bessel -w && ./DLGK_exact.out 
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
@@ -37,8 +37,8 @@ typedef complex<double> dcomplex;          // Defines complex number with double
 double Cspeed = 137.035999139;
 double Pi     = boost::math::constants::pi<double>();           // Parameter for Drude model of the NP and atomic units
 double nm     = 100./5.2918;
-double wp     = 0.555;
-double Gamma  = 0.00555;
+double wp     = 0.482959;
+double Gamma  = 0.00723961;
 
 
 
@@ -442,23 +442,23 @@ Omegas(xi, xk, xg);
 double w, k0;
 
 char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
-sprintf(filename, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_extF2.dat", a/(1.*nm), vv, b/(1.*nm));
+sprintf(filename, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_ext.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fpp = fopen(filename,"w+");
 fprintf(fpp,"Total Angular momentum transfered, a: %.2gnm    v: %.2gc   b: %.2gnm   Lmax: %d  \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
 fprintf(fpp,"\n");
-fprintf(fpp,"         DLEx                    DLHx                  DLEz                  DLHz            DLEsx                   DLHsx                 DLEsz                 DLHsz\n");
+fprintf(fpp,"         DLEx                    DLHx                  DLEy                  DLHy                  DLEz                  DLHz            DLEsx                   DLHsx                  DLEsy                  DLHsy                 DLEsz                 DLHsz\n");
 
 
 char filenamer[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
-sprintf(filenamer, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_error_extF2.dat", a/(1.*nm), vv, b/(1.*nm));
+sprintf(filenamer, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_error_ext.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fppe = fopen(filenamer,"w+");
 fprintf(fppe,"Total Angular momentum transfered (error), a: %.2gnm    v: %.2gc   b: %.2gnm      Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
 fprintf(fppe,"\n");
-fprintf(fppe,"       errDLEx                   errDLHx                 errDLEz                errDLHz        errDLEsx               errDLHsx               errDLEsz              errDLHsz\n");
+fprintf(fppe,"       errDLEx                   errDLHx                 errDLEy                errDLHy                 errDLEz                errDLHz        errDLEsx               errDLHsx                 errDLEsy                errDLHsy               errDLEsz              errDLHsz\n");
 
 
 char filenamex[sizeof "Results/dldw_a1nm_v0.99c_b1.5nm_extF2.dat"];
-sprintf(filenamex, "Results/dldw_a%.2gnm_v%.2g_b%.2gnm_extF2.dat", a/(1.*nm), vv, b/(1.*nm));
+sprintf(filenamex, "Results/dldw_a%.2gnm_v%.2g_b%.2gnm_ext.dat", a/(1.*nm), vv, b/(1.*nm));
 FILE *fpx = fopen(filenamex,"w+");
 fprintf(fpx,"Angular Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
 fprintf(fpx,"\n");
@@ -579,7 +579,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                               - (dl1-dm1+1.)*IU2)-tMl[l1-1]*CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
      
                     IHrtx[0] = 1i*(dm1-dm2)*(- tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
-                              - (dl1-dm1+1.)*IU2)+ tEL[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                              - (dl1-dm1+1.)*IU2)+ tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
 
 
                     IErtx[1] =  1i*(dm1-dm2)*(- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
@@ -647,7 +647,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     IHrfx[1] =  1i*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
                               - (dl1-dm1+1.)*IW2)+ CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
 
-                    IErfx[2] =  1i*( tM[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
+                    IErfx[2] =  1i*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
                               - (dl1-dm1+1.)*IW2) + tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
 
                     IHrfx[2] =  1i*( -tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
@@ -951,37 +951,49 @@ for (int rr = 0; rr < 6; ++rr){
 
 
 // Here print the dldw's, for each, w, l
-fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dldwx[0],dldwx[1],dldwy[0],dldwy[1],dldwz[0],dldwz[1], dldwx[2], dldwx[3],dldwy[2], dldwy[3], dldwz[2], dldwz[3],dldwx[4],dldwx[5],dldwx[4],dldwx[5],dldwz[4],dldwz[5]);
+fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dldwx[0],dldwx[1],dldwy[0],dldwy[1],dldwz[0],dldwz[1], dldwx[2], dldwx[3],dldwy[2], dldwy[3], dldwz[2], dldwz[3],dldwx[4],dldwx[5],dldwy[4],dldwy[5],dldwz[4],dldwz[5]);
 
 // cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
 
 }// for w
 
 // Here print the total momentum
-fprintf(fpp,"%.17g %.17g %.17g %.17g  %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].real(),DLx[1].real(),DLz[0].real(),DLz[1].real(), DLx[2].real(),DLx[3].real(),DLz[2].real(),DLz[3].real(),DLx[4].real(),DLx[5].real(),DLz[4].real(),DLz[5].real());
-fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].imag(),DLx[1].imag(),DLz[0].imag(),DLz[1].imag(), DLx[2].imag(),DLx[3].imag(),DLz[2].imag(),DLz[3].imag(),DLx[4].imag(),DLx[5].imag(),DLz[4].imag(),DLz[5].imag());
+fprintf(fpp,"%.17g %.17g %.17g %.17g  %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].real(),DLx[1].real(),DLy[0].real(),DLy[1].real(),DLz[0].real(),DLz[1].real(), DLx[2].real(),DLx[3].real(),DLy[2].real(),DLy[3].real(),DLz[2].real(),DLz[3].real(),DLx[4].real(),DLx[5].real(),DLy[4].real(),DLy[5].real(),DLz[4].real(),DLz[5].real());
+fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].imag(),DLx[1].imag(),DLy[0].imag(),DLy[1].imag(),DLz[0].imag(),DLz[1].imag(), DLx[2].imag(),DLx[3].imag(),DLy[2].imag(),DLy[3].imag(),DLz[2].imag(),DLz[3].imag(),DLx[4].imag(),DLx[5].imag(),DLy[4].imag(),DLy[5].imag(),DLz[4].imag(),DLz[5].imag());
 
-/* cout << endl;
+/* Integrants (dldw),                  0 -> Ext-Scat (Electric)
+                                       1 -> Ext-Scat (Magnetic)
+                                       2 -> Scat-Scat (Electric) 
+                                       3 -> Scat-Scat (Magnetic)
+                                       4 -> Ext-Ext (Electric)
+                                       5 -> Ext-Ext (Magnetic)*/
+/*cout << endl;
 cout << "DLEx : " << DLx[0] << endl;
 cout << "DLHx : " << DLx[1] << endl;                // prints result
+cout << endl;*/
+cout << "DLEy : " << DLy[0] << endl;
+cout << "DLHy : " << DLy[1] << endl;                // prints result
 cout << endl;
 cout << "DLEz : " << DLz[0] << endl;
 cout << "DLHz : " << DLz[1] << endl;
 cout << endl;
-cout << "DLEsx : " << DLx[2] << endl;
+/*cout << "DLEsx : " << DLx[2] << endl;
 cout << "DLHsx : " << DLx[3] << endl;                // prints result
+cout << endl;*/
+cout << "DLEsy : " << DLy[2] << endl;
+cout << "DLHsy : " << DLy[3] << endl;                // prints result
 cout << endl;
 cout << "DLEsz : " << DLz[2] << endl;
 cout << "DLHsz : " << DLz[3] << endl;
-cout << endl; */
+cout << endl; 
 
 //cout << "r = " << r/nm << "nm." << endl;
-cout << "b = " << b/nm << "nm." << endl;
-cout << "v = " << vv << " c." << endl;
-cout << "DLEex : " << DLx[4] << endl;
+//cout << "b = " << b/nm << "nm." << endl;
+//cout << "v = " << vv << " c." << endl;
+/*cout << "DLEex : " << DLx[4] << endl;
 cout << "DLHex : " << DLx[5] << endl;                // prints result
 cout << endl;
-/*cout << "DLEey : " << DLy[4] << endl;
+cout << "DLEey : " << DLy[4] << endl;
 cout << "DLHey : " << DLy[5] << endl;                // prints result
 cout << endl;
 cout << "DLEez : " << DLz[4] << endl;
@@ -1006,13 +1018,20 @@ cout << endl;
 cout << "Lmax = " << Lmax << endl;
 cout << endl;
 
-double b = 5.5*nm;                        
+double b = 3.0*nm;                        
 double a = 1.*nm;                        
 double r = 1.05*nm;
 double v = 0.5;
 
-
-
+// Start the timer
+auto start = std::chrono::high_resolution_clock::now();
+DL(r, v, b, a);
+// End the timer
+auto end = std::chrono::high_resolution_clock::now();
+// Calculate the duration
+std::chrono::duration<double> duration = end - start;
+// Print the duration in seconds
+std::cout << "Execution time: " << duration.count() << " seconds." << std::endl;
 
 cout << "a = " << a/nm << "nm." << endl;
 cout << "r = " << r/nm << "nm." << endl;
@@ -1020,13 +1039,13 @@ cout << "v = " << v << "c." << endl;
 cout << "b = " << b/nm << "nm." << endl;
 cout << endl;
 
-for (int i = 0; i < 10; ++i)
+/**for (int i = 0; i < 10; ++i)
 {
     //r =(1.05 + i)*nm;
     //b = (1.5 + i)*nm;
     v = 0.1 + (0.99-0.1)*i/10;
     DL(r, v, b, a);
-}
+}**/
      
 
  

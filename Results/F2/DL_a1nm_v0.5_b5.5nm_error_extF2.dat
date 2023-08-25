@@ -1,0 +1,4 @@
+Total Angular momentum transfered (error), a: 1nm    v: 0.5c   b: 5.5nm      Lmax: 10 
+
+       errDLEx                   errDLHx                 errDLEy                errDLHy                 errDLEz                errDLHz        errDLEsx               errDLHsx                 errDLEsy                errDLHsy               errDLEsz              errDLHsz
+4.6382604992696457e-23 -7.2392560956453092e-25 -1.2112801616394486e-17 -2.086720343759561e-20 -1.9298625732123214e-17 1.4516094568574333e-20 8.2296695546666061e-21 9.6333199580886608e-29 1.0699932599324159e-21 1.2829572247694652e-22 -2.5563030001473995e-17 -2.8861342837878491e-23 
