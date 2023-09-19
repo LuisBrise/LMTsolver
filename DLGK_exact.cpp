@@ -20,7 +20,7 @@
 //*****************************************************************************************************************
 
 
-#include "IN11.h"
+#include "IN16.h"
 
 // Spherical Bessel (Hankel) funcions with *complex argument* (very important) for the scatterred fields. 
 // Only found in SLATEC project (FORTRAN 77).
@@ -37,22 +37,22 @@ typedef complex<double> dcomplex;          // Defines complex number with double
 double Cspeed = 137.035999139;
 double Pi     = boost::math::constants::pi<double>();           // Parameter for Drude model of the NP and atomic units
 double nm     = 100./5.2918;
-double wp     = 0.482959;
-double Gamma  = 0.00723961;
+double wp     = 0.48297106037599996;
+double Gamma  = 0.007244389509;
 
 
 
 //************************************************
 // Maximum number of multipole to take into account
 
-const int Lmax = 10;
+const int Lmax = 1;
 
 // Order N of the gaussian quadrature (must be odd), the integral is
 // performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
-const int nw1 = 61;   
-const int nw2 = 211;   
-const int nw3 = 61;                   // Drude Al
-const int nw4 = 61;  
+const int nw1 = 51;   
+const int nw2 = 201;   
+const int nw3 = 51;                   // Drude Al
+const int nw4 = 51;  
 const int NN = nw1 + nw2 + nw3 + nw4;
 
 double w1 = 0.;
@@ -538,12 +538,9 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                         IW1 = IW[l1-1][l2-1][m1+l1][m2+l2];
                         IW2 = IW[l1][l2-1][m1+l1+1][m2+l2];   
-                        IW3 = IW[l1-1][l2][m1+l1][m2+l2+1];
 
                         IU1 = IU[l1-1][l2-1][m1+l1][m2+l2];
                         IU2 = IU[l1][l2-1][m1+l1+1][m2+l2];
-                        IU3 = IU[l1-1][l2][m1+l1][m2+l2+1];
-                        IU4 = IU[l1][l2][m1+l1+1][m2+l2+1];
 
                         /* Integrants, 0 -> Scat
                                        1 -> Ext
@@ -551,7 +548,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                                        3 -> Scat-Ext (second is conjugated)*/
 
 
-                    IErrx[0] = 0.; 
+                    /*IErrx[0] = 0.; 
 
                     IHrrx[0] = 0.; 
 
@@ -570,7 +567,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IErrx[3] = 0.; //G
 
-                    IHrrx[3] = 0.; //G
+                    IHrrx[3] = 0.; //G*/
 
 
                                    // Zenital - Radial
@@ -688,7 +685,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                                         // Azimutal - Azimutal
 
-                    IEffx[0] =  0.; //G
+                    /*IEffx[0] =  0.; //G
 
                     IHffx[0] =  0.;   //   
 
@@ -729,7 +726,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IEttx[3] =  0.; 
 
-                    IHttx[3] =  0.; }
+                    IHttx[3] =  0.;*/ }
 
 
                 else{
@@ -774,7 +771,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                    IErrz[0] = 0.; // G of "Good" cheked with TestGKL.cpp
+                    /*IErrz[0] = 0.; // G of "Good" cheked with TestGKL.cpp
 
                     IHrrz[0] = 0.; //G
 
@@ -791,38 +788,38 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IErrz[3] = 0.; // G of "Good" cheked with TestGKL.cpp
 
-                    IHrrz[3] = 0.; //G
+                    IHrrz[3] = 0.; //G*/
 
 
                                               // Zenital - Radial
 
-                    IErtz[0] = -( tEl[l1-1]*DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ tMl[l1-1]*CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1);  //G
+                    IErtz[0] = 1i*2.0*( tEl[l1-1]*DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              + tMl[l1-1]*CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
    
-                    IHrtz[0] = (- tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1); //G
+                    IHrtz[0] = 1i*2.0*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              - tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
 
-                    IErtz[1] =  -( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1);  //G
+                    IErtz[1] =  1i*2.0*( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              + CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
    
-                    IHrtz[1] = (- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1); //G
+                    IHrtz[1] = 1i*2.0*( CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              - DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
 
-                    IErtz[2] = -( tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1);  //G
+                    IErtz[2] = 1i*2.0*( tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              + tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
    
-                    IHrtz[2] = (- tMl[l1-1]*CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1); //G
+                    IHrtz[2] = 1i*2.0*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              - tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
 
-                    IErtz[3] = -( DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1);  //G
+                    IErtz[3] = 1i*2.0*( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              + CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
    
-                    IHrtz[3] = (- CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 
-                              - (dl1-dm1+1.)*ID2)+ DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1); //G
+                    IHrtz[3] = 1i*2.0*( CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
+                              - DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
 
                                            // Azimutal - Azimutal
 
-                    IEffz[0] =  0.;  //G
+                    /*IEffz[0] =  0.;  //G
 
                     IHffz[0] =  0.;  //G
 
@@ -874,7 +871,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                     IEttz[3] =  0.; 
 
-                    IHttz[3] =  0.; }  
+                    IHttz[3] =  0.;*/ }  
                                               
                 else{
                   for (int rr = 0; rr < 4; ++rr){
@@ -985,6 +982,8 @@ cout << "DLHsy : " << DLy[3] << endl;                // prints result
 cout << endl;
 cout << "DLEsz : " << DLz[2] << endl;
 cout << "DLHsz : " << DLz[3] << endl;
+cout << endl;
+cout << "DL : " << DLy[0] + DLy[1] + DLy[2] + DLy[3] << endl;
 cout << endl; 
 
 //cout << "r = " << r/nm << "nm." << endl;
@@ -1018,10 +1017,10 @@ cout << endl;
 cout << "Lmax = " << Lmax << endl;
 cout << endl;
 
-double b = 3.0*nm;                        
+double b = 20.0*nm;                        
 double a = 1.*nm;                        
-double r = 1.05*nm;
-double v = 0.5;
+double r = 1.1*nm;
+double v = 0.7;
 
 // Start the timer
 auto start = std::chrono::high_resolution_clock::now();

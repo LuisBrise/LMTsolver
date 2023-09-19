@@ -9,7 +9,7 @@
 //   Also, the integral in frequencies is calculated via Gauss - Kronrod using
 //   a partition set to fast convergence. The results are written to a file named "DP*.dat". 
 //  
-//	flags g++ -o DPGK_Drude_exact.out DPGK_Drude_exact.cpp -lcomplex_bessel -w
+//	flags g++ -o DPGK_Drude_exact.out DPGK_Drude_exact.cpp -lcomplex_bessel -w && ./DPGK_Drude_exact.out
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 //
@@ -42,7 +42,7 @@ double Gamma  = 0.00555;
 //************************************************
 // Maximum number of multipole to take into account
 
-const int Lmax = 5;
+const int Lmax = 2;
 
 // Order N of the gaussian quadrature (must be odd), the integral is
 // performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
@@ -1011,7 +1011,7 @@ for (int rr = 0; rr < 6; ++rr){
 // Here print the dpdw's, for each, w, l
 fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dpdwx[0],dpdwx[1],dpdwz[0],dpdwz[1], dpdwx[2], dpdwx[3], dpdwz[2], dpdwz[3],dpdwx[4],dpdwx[5],dpdwz[4],dpdwz[5]);
 
-cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
+//cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
 
 }// for w
 
@@ -1058,10 +1058,10 @@ cout << endl;
 cout << "Lmax = " << Lmax << endl;
 cout << endl;
 
-double b = 1.5*nm;                        
+double b = 20.0*nm;                        
 double a = 1.*nm;                        
 double r = 1.05*nm;
-double v = 0.5;
+double v = 0.7;
 
 
 

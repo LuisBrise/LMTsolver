@@ -1,0 +1,61 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-fee14424185a74f28e8c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "2.8"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "complex_bessel",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "complex_bessel::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-complex_bessel-Debug-1f2c0abb1c2349dbd5fd.json",
+					"name" : "complex_bessel",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build",
+		"source" : "/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/complex_bessel-master/complex_bessel-master"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

@@ -1,0 +1,7 @@
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/complex_bessel.dir
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/edit_cache.dir
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/rebuild_cache.dir
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/list_install_components.dir
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/install.dir
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/install/local.dir
+/media/george/Almacenamiento1/Storage/8-Momentum Transfer from electrons to NPs/NPs/build/CMakeFiles/install/strip.dir
