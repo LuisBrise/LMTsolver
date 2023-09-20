@@ -533,7 +533,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                                     // Radial - Radial 
 
-                        IN1 = IN[l1-1][l2-1][m1+l1][m2+l2];
+                        //IN1 = IN[l1-1][l2-1][m1+l1][m2+l2];
                         IV1 = IV[l1-1][l2-1][m1+l1][m2+l2];
 
                         IW1 = IW[l1-1][l2-1][m1+l1][m2+l2];
@@ -755,19 +755,19 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                                               // Radial - Radial 
 
                         IM1 = IM[l1-1][l2-1][m1+l1][m2+l2];
-                        IZ1 = IZ[l1-1][l2-1][m1+l1][m2+l2];
+                        //IZ1 = IZ[l1-1][l2-1][m1+l1][m2+l2];
 
                         ID1 = ID[l1-1][l2-1][m1+l1][m2+l2];
                         ID2 = ID[l1][l2-1][m1+l1+1][m2+l2];
 
-                        IX1 = IX[l1-1][l2-1][m1+l1][m2+l2];
-                        IX2 = IX[l1][l2-1][m1+l1+1][m2+l2];
-                        IX3 = IX[l1-1][l2][m1+l1][m2+l2+1];
+                        //IX1 = IX[l1-1][l2-1][m1+l1][m2+l2];
+                        //IX2 = IX[l1][l2-1][m1+l1+1][m2+l2];
+                        //IX3 = IX[l1-1][l2][m1+l1][m2+l2+1];
 
-                        IY1 = IY[l1-1][l2-1][m1+l1][m2+l2];
-                        IY2 = IY[l1][l2-1][m1+l1+1][m2+l2];
-                        IY3 = IY[l1-1][l2][m1+l1][m2+l2+1];
-                        IY4 = IY[l1][l2][m1+l1+1][m2+l2+1];
+                        //IY1 = IY[l1-1][l2-1][m1+l1][m2+l2];
+                        //IY2 = IY[l1][l2-1][m1+l1+1][m2+l2];
+                        //IY3 = IY[l1-1][l2][m1+l1][m2+l2+1];
+                        //IY4 = IY[l1][l2][m1+l1+1][m2+l2+1];
 
 
 
