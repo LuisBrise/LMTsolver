@@ -1,6 +1,5 @@
 
-#include "IN41.h"
-                                                            
+#include "IN41.h"                                                            
 
 using namespace sp_bessel;
 using namespace std;                  
@@ -12,7 +11,6 @@ double Pi     = boost::math::constants::pi<double>();           // Parameter for
 double nm     = 100./5.2918;
 double wp     = 0.555;
 double Gamma  = 0.00555;
-
 
 //************************************************
 // Maximum number of multipole to take into account

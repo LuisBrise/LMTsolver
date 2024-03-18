@@ -1,6 +1,6 @@
 //*****************************************************************************************************************
 //
-//   DLGK_exact.cpp:
+//   DLGK_exact_vs_b.cpp:
 //
 //    This program calculates the spectral linear momentum dl/dw transferred to a 
 //   NP due a fast swfit electron. It calculate the closed surface integral 
@@ -10,8 +10,8 @@
 //   a partition set to fast convergence. The results are written to a file named "DL*.dat". 
 //  
 //	flags 
-//      g++ -o DLGK_exact.out DLGK_exact.cpp -lcomplex_bessel -w 
-//      g++ -o DLGK_exact.out DLGK_exact.cpp -lcomplex_bessel -w && ./DLGK_exact.out 
+//      g++ -o DLGK_exact_vs_b.out DLGK_exact_vs_b.cpp -lcomplex_bessel -w 
+//      g++ -o DLGK_exact_vs_b.out DLGK_exact_vs_b.cpp -lcomplex_bessel -w && ./DLGK_exact_vs_b.out 
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
@@ -20,7 +20,7 @@
 //*****************************************************************************************************************
 
 
-#include "IN11.h"
+#include "IN16.h"
 
 // Spherical Bessel (Hankel) funcions with *complex argument* (very important) for the scatterred fields. 
 // Only found in SLATEC project (FORTRAN 77).
@@ -40,23 +40,21 @@ double nm     = 100./5.2918;
 double wp     = 0.48297106037599996;
 double Gamma  = 0.007244389509;
 
-
-
 //************************************************
 // Maximum number of multipole to take into account
 
-const int Lmax = 1;
+int Lmax = 3;
 
 // Order N of the gaussian quadrature (must be odd), the integral is
 // performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
 const int nw1 = 51;   
-const int nw2 = 201;   
+const int nw2 = 251;   
 const int nw3 = 51;                   // Drude Al
 const int nw4 = 51;  
 const int NN = nw1 + nw2 + nw3 + nw4;
 
 double w1 = 0.;
-double w2 = .3;
+double w2 = .2;
 double w3 = .4;
 double w4 = 2.;
 double w5 = 40.; // Omega cut for freq. integral
@@ -122,10 +120,6 @@ double factorial(int n)
     return n*factorial(n-1);
     }
 }
-
-
-
-
 
 
 //********************************************************************************
@@ -409,29 +403,24 @@ xg[i + NN3+ NN1+ NN2] = ((w5-w4)/2.)*GKQw4[i][2];
 
 
 
-void DL(double r, double vv, double b, double a){
+void DL(double r, double vv, double b, double a, dcomplex DLy[6]){
 
 double dm;
 double dl;
 
-double dldwx[6], dldwy[6], dldwz[6];
-dcomplex DLx[6], DLy[6], DLz[6];
+double dldwy[6];
+//dcomplex DLy[6];
 
 dcomplex CM[Lmax][2*Lmax +1], tMl[Lmax];
 dcomplex DE[Lmax][2*Lmax +1], tEl[Lmax];
 dcomplex dz[2][Lmax], df[2][Lmax];
 
-// dcomplex IErrx[4], IErrz[4], IHrrx[4], IHrrz[4];
-dcomplex IErtx[4], IErtz[4], IHrtx[4], IHrtz[4];
 dcomplex IErty[4], IHrty[4];
-dcomplex IErfx[4], IHrfx[4], IErfy[4], IHrfy[4];
-dcomplex IEttx[4], IEttz[4];
-// dcomplex IEffx[4], IEffz[4], IHffx[4], IHffz[4];
+dcomplex IErfy[4], IHrfy[4];
 
 double dl1, dl2, dm1, dm2;
 
 double IN1, IV1, IW1, IW2, IU1, IU2;
-double IM1, ID1, ID2;
 FUN(IM,IN,IU,IV,IW,IX,IY,IZ,ID,III);
 
 
@@ -441,28 +430,12 @@ Omegas(xi, xk, xg);
 
 double w, k0;
 
-char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
-sprintf(filename, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_ext.dat", a/(1.*nm), vv, b/(1.*nm));
-FILE *fpp = fopen(filename,"w+");
-fprintf(fpp,"Total Angular momentum transfered, a: %.2gnm    v: %.2gc   b: %.2gnm   Lmax: %d  \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
-fprintf(fpp,"\n");
-fprintf(fpp,"         DLEx                    DLHx                  DLEy                  DLHy                  DLEz                  DLHz            DLEsx                   DLHsx                  DLEsy                  DLHsy                 DLEsz                 DLHsz\n");
-
-
-char filenamer[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
-sprintf(filenamer, "Results/DL_a%.2gnm_v%.2g_b%.2gnm_error_ext.dat", a/(1.*nm), vv, b/(1.*nm));
-FILE *fppe = fopen(filenamer,"w+");
-fprintf(fppe,"Total Angular momentum transfered (error), a: %.2gnm    v: %.2gc   b: %.2gnm      Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
-fprintf(fppe,"\n");
-fprintf(fppe,"       errDLEx                   errDLHx                 errDLEy                errDLHy                 errDLEz                errDLHz        errDLEsx               errDLHsx                 errDLEsy                errDLHsy               errDLEsz              errDLHsz\n");
-
-
 char filenamex[sizeof "Results/dldw_a1nm_v0.99c_b1.5nm_extF2.dat"];
-sprintf(filenamex, "Results/dldw_a%.2gnm_v%.2g_b%.2gnm_ext.dat", a/(1.*nm), vv, b/(1.*nm));
+sprintf(filenamex, "Results/LybAl/%d/dldw_a%.2gnm_v%.2g_b%.2gnm.dat", Lmax, a/(1.*nm), vv, b/(1.*nm));
 FILE *fpx = fopen(filenamex,"w+");
 fprintf(fpx,"Angular Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
 fprintf(fpx,"\n");
-fprintf(fpx,"         w(au)                   dlEdwx                 dlHdwx                   dlEdwy                   dlHdwy                 dlEdwz                dlHdwz                  dlEsdwx                dlHsdwx                   dlEsdwy                   dlHsdwy                dlEsdwz                dlHsdwz              dlEedwx                dlHedwx                   dlEedwy                   dlHedwy                dlEedwz                dlHedwz\n");
+fprintf(fpx,"         b         w(au)                   dlEdwy                   dlHdwy                 dlEsdwy                   dlHsdwy                   dlEsdwyExt                   dlHsdwyExt\n");
 
 dcomplex AA[Lmax][2*Lmax+1], BB[Lmax][2*Lmax+1];
 dcomplex aa, bb;
@@ -476,16 +449,13 @@ for (int l = 1; l <= Lmax; ++l){
 
 
 for (int i = 0; i < 6; ++i){
-DLx[i] = 0.;
 DLy[i] = 0.;
-DLz[i] = 0.;
 }
 
 
 for (int i = 0; i < iw4; ++i){     // Here we can select the Omega interval to integrate "2*NN + 4" for total.
     w = xi[i];
     k0 = w/Cspeed;
-
 
 // Calculates  common parameters of the scatterred fields
 for (int l = 1; l <= Lmax; l++){
@@ -511,29 +481,26 @@ for (int l = 1; l <= Lmax; l++){
 
 
 for (int rr = 0; rr < 6; ++rr){
-dldwx[rr] = 0.;
 dldwy[rr] = 0.;
-dldwz[rr] = 0.;
 }
 
 
 
-for (int l1 = 1; l1 <= Lmax; ++l1){
+for (int l1 = 1; l1 <= Lmax; l1++){
      dl1 = 1.*l1; 
-for (int l2 = 1; l2 <= Lmax; ++l2){
+for (int l2 = 1; l2 <= Lmax; l2++){
          dl2 = 1.*l2; 
-         for (int m1 = -l1; m1 <= l1; ++m1){
+         for (int m1 = -l1; m1 <= l1; m1++){
               dm1 = 1.*m1;
-              for (int m2 = -l2; m2 <= l2; ++m2){
+              for (int m2 = -l2; m2 <= l2; m2++){
                    dm2 = 1.*m2;
 
 
 
-                    if(m2 == m1+1 || m2 == m1-1){
+                    if(std::abs (m2-m1)==1){
 
                                     // Radial - Radial 
 
-                        //IN1 = IN[l1-1][l2-1][m1+l1][m2+l2];
                         IV1 = IV[l1-1][l2-1][m1+l1][m2+l2];
 
                         IW1 = IW[l1-1][l2-1][m1+l1][m2+l2];
@@ -549,34 +516,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 
-                                   // Zenital - Radial
-
-                    IErtx[0] = 1i*(dm1-dm2)*(- tEl[l1-1]*DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
-                              - (dl1-dm1+1.)*IU2)-tMl[l1-1]*CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-     
-                    IHrtx[0] = 1i*(dm1-dm2)*(- tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
-                              - (dl1-dm1+1.)*IU2)+ tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-
-
-                    IErtx[1] =  1i*(dm1-dm2)*(- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
-                              - (dl1-dm1+1.)*IU2)-CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-     
-                    IHrtx[1] =  1i*(dm1-dm2)*(- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
-                              - (dl1-dm1+1.)*IU2)+ DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-
-
-                    IErtx[2] = 1i*(dm1-dm2)*(- tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
-                              - (dl1-dm1+1.)*IU2)-tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-     
-                    IHrtx[2] = 1i*(dm1-dm2)*(- tMl[l1-1]*CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
-                              - (dl1-dm1+1.)*IU2)+ tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-
-
-                    IErtx[3] = 1i*(dm1-dm2)*(- DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
-                              - (dl1-dm1+1.)*IU2)-CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
-     
-                    IHrtx[3] = 1i*(dm1-dm2)*(- CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
-                              - (dl1-dm1+1.)*IU2)+ DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    // Zenital - Radial
 
                     // y component
 
@@ -587,11 +527,9 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                               - (dl1-dm1+1.)*IU2) + tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
 
 
-                    IErty[1] =  (- DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
-                              - (dl1-dm1+1.)*IU2) - CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    IErty[1] =  0.0;
      
-                    IHrty[1] =  (- CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1
-                              - (dl1-dm1+1.)*IU2) + DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
+                    IHrty[1] =  0.0;
 
 
                     IErty[2] = (- tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IW1 
@@ -608,32 +546,8 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                               - (dl1-dm1+1.)*IU2) + DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IU1);
 
 
-                                    // Azimutal - Radial
+                    // Azimutal - Radial
 
-
-                    IErfx[0] =  1i*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2) + tEl[l1-1]*DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
-
-                    IHrfx[0] =  1i*( -tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2)+ tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
-
-                    IErfx[1] =  1i*( CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2) + DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
-
-                    IHrfx[1] =  1i*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2)+ CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
-
-                    IErfx[2] =  1i*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2) + tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
-
-                    IHrfx[2] =  1i*( -tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2)+ tMl[l1-1]*CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);
-
-                    IErfx[3] =  1i*( CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2) + DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
-
-                    IHrfx[3] =  1i*( -DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2)+ CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);
 
                     // y compo
 
@@ -643,11 +557,9 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     IHrfy[0] =  -(dm1-dm2)*( -tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
                               - (dl1-dm1+1.)*IW2)+ tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
 
-                    IErfy[1] =  -(dm1-dm2)*( CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2)+ DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
+                    IErfy[1] = 0.0; 
 
-                    IHrfy[1] =  -(dm1-dm2)*( -DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
-                              - (dl1-dm1+1.)*IW2)+ CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
+                    IHrfy[1] =  0.0;  
 
                     IErfy[2] =  -(dm1-dm2)*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
                               - (dl1-dm1+1.)*IW2)+ tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1); 
@@ -655,7 +567,7 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     IHrfy[2] =  -(dm1-dm2)*( -tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
                               - (dl1-dm1+1.)*IW2)+ tMl[l1-1]*CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);
 
-                    IErfy[3] =  -(dm1-dm2)*( CM[l1-1][m1+l1]*conj(tEl[l2-2]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
+                    IErfy[3] =  -(dm1-dm2)*( CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
                               - (dl1-dm1+1.)*IW2)+ DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*IW1);  
 
                     IHrfy[3] =  -(dm1-dm2)*( -DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IV1 
@@ -667,77 +579,16 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                 else{
                   for (int rr = 0; rr < 4; ++rr){
 
-                     IErtx[rr] = 0.;
-                     IHrtx[rr] = 0.;
                      IErty[rr] = 0.;
                      IHrty[rr] = 0.;
 
-                     IErfx[rr] = 0.;
-                     IHrfx[rr] = 0.;
                      IErfy[rr] = 0.;
                      IHrfy[rr] = 0.;
 
                     }
                    }
 
-
-
-
-                if(m2 == m1){
-                                              // Radial - Radial 
-
-                        IM1 = IM[l1-1][l2-1][m1+l1][m2+l2];
-
-
-                        ID1 = ID[l1-1][l2-1][m1+l1][m2+l2];
-                        ID2 = ID[l1][l2-1][m1+l1+1][m2+l2];
-
-
-
-
-
-                    //IErrz[0] = 0.; // G of "Good" cheked with TestGKL.cpp
-
-
-
-
-                                              // Zenital - Radial
-
-                    IErtz[0] = 1i*2.0*( tEl[l1-1]*DE[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              + tMl[l1-1]*CM[l1-1][m1+l1]*conj(tEl[l2-1]*DE[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-   
-                    IHrtz[0] = 1i*2.0*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              - tEl[l1-1]*DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-
-                    IErtz[1] =  1i*2.0*( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              + CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-   
-                    IHrtz[1] = 1i*2.0*( CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              - DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-
-                    IErtz[2] = 1i*2.0*( tEl[l1-1]*DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              + tMl[l1-1]*CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-   
-                    IHrtz[2] = 1i*2.0*( tMl[l1-1]*CM[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(df[0][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              - tEl[l1-1]*DE[l1-1][m1+l1]*conj(CM[l2-1][m2+l2]*dz[1][l2-1])*(dz[0][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-
-                    IErtz[3] = 1i*2.0*( DE[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              + CM[l1-1][m1+l1]*conj(DE[l2-1][m2+l2]*dz[1][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-   
-                    IHrtz[3] = 1i*2.0*( CM[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(df[1][l1-1]/(k0*r))*dm1*dl2*(dl2+1.)*ID1 
-                              - DE[l1-1][m1+l1]*conj(tMl[l2-1]*CM[l2-1][m2+l2]*dz[0][l2-1])*(dz[1][l1-1]/(k0*r))*dl2*(dl2+1.)*((dl1+1.)*IM1 - (dl1-dm1+1.)*ID2));  //G
-
-                     }  
-                                              
-                else{
-                  for (int rr = 0; rr < 4; ++rr){
-   
-                     IErtz[rr] = 0.;
-                     IHrtz[rr] = 0.;
-
-                    }
-                   }
-                   /* Integrants (I), 0 -> Scat
+                   /* Integrants (DL), 0 -> Scat
                                        1 -> Ext
                                        2 -> Ext-Scat 
                                        3 -> Scat-Ext (second is conjugated)*/
@@ -750,37 +601,14 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                                        4 -> Ext-Ext (Electric)
                                        5 -> Ext-Ext (Magnetic)*/
 
-                    dldwx[0] +=  (1./(4.*Pi))*r*r*r*(( IErtx[2] + IErfx[2] ).real()
-                                                    +( IErtx[3] + IErfx[3] ).real());
-                    dldwy[0] +=  (1./(4.*Pi))*r*r*r*(( IErty[2] - IErfy[2] ).real()
+                    dldwy[0] +=  (1./(4.*Pi))*pow(r,3)*(( IErty[2] - IErfy[2] ).real()
                                                     +( IErty[3] - IErfy[3] ).real());
-                    dldwz[0] +=  (1./(4.*Pi))*r*r*r*(IErtz[2] + IErtz[3]).real();
-
-                    dldwx[1] +=  (1./(4.*Pi))*r*r*r*((IHrtx[2] +IHrfx[2]).real()
-                                                    +(IHrtx[3] +IHrfx[3]).real());
-                    dldwy[1] +=  (1./(4.*Pi))*r*r*r*((IHrty[2] -IHrfy[2]).real()
+                    dldwy[1] +=  (1./(4.*Pi))*pow(r,3)*((IHrty[2] -IHrfy[2]).real()
                                                     +(IHrty[3] -IHrfy[3]).real());
-                    dldwz[1] +=  (1./(4.*Pi))*r*r*r*(IHrtz[2] + IHrtz[3]).real();
-
-                    dldwx[2] +=  (1./(4.*Pi))*r*r*r*( IErtx[0] + IErfx[0] ).real();
-                    dldwy[2] +=  (1./(4.*Pi))*r*r*r*( IErty[0] - IErfy[0] ).real();
-                    dldwz[2] +=  (1./(4.*Pi))*r*r*r*(IErtz[0]).real();
-
-                    dldwx[3] +=  (1./(4.*Pi))*r*r*r*(IHrtx[0] +IHrfx[0]).real();
-                    dldwy[3] +=  (1./(4.*Pi))*r*r*r*(IHrty[0] -IHrfy[0]).real();
-                    dldwz[3] +=  (1./(4.*Pi))*r*r*r*(IHrtz[0]).real();
-
-                    dldwx[4] +=  (1./(4.*Pi))*r*r*r*( IErtx[1] + IErfx[1] ).real();
-                    dldwy[4] +=  (1./(4.*Pi))*r*r*r*( IErty[1] - IErfy[1] ).real();
-                    dldwz[4] +=  (1./(4.*Pi))*r*r*r*(IErtz[1]).real();
-
-                    dldwx[5] +=  (1./(4.*Pi))*r*r*r*(IHrtx[1] +IHrfx[1]).real();
-                    dldwy[5] +=  (1./(4.*Pi))*r*r*r*(IHrty[1] -IHrfy[1]).real();
-                    dldwz[5] +=  (1./(4.*Pi))*r*r*r*(IHrtz[1]).real();
-
-
-
-
+                    dldwy[2] +=  (1./(4.*Pi))*pow(r,3)*( IErty[0] - IErfy[0] ).real();
+                    dldwy[3] +=  (1./(4.*Pi))*pow(r,3)*(IHrty[0] -IHrfy[0]).real();
+                    dldwy[4] +=  (1./(4.*Pi))*pow(r,3)*( IErty[1] - IErfy[1] ).real();
+                    dldwy[5] +=  (1./(4.*Pi))*pow(r,3)*(IHrty[1] -IHrfy[1]).real();
 
             } // for m2
         }  // for m1
@@ -792,23 +620,17 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
 for (int rr = 0; rr < 6; ++rr){ 
-  DLx[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dldwx[rr];
   DLy[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dldwy[rr];
-  DLz[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dldwz[rr];
 }
 
 
 
 // Here print the dldw's, for each, w, l
-fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",w,dldwx[0],dldwx[1],dldwy[0],dldwy[1],dldwz[0],dldwz[1], dldwx[2], dldwx[3],dldwy[2], dldwy[3], dldwz[2], dldwz[3],dldwx[4],dldwx[5],dldwy[4],dldwy[5],dldwz[4],dldwz[5]);
+fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",b/(1.*nm),w,dldwy[0],dldwy[1],dldwy[2], dldwy[3], dldwy[4],dldwy[5]);
 
 // cout << "In   " << i + 1 << "  of   " << 2*NN + 4 << endl;
 
 }// for w
-
-// Here print the total momentum
-fprintf(fpp,"%.17g %.17g %.17g %.17g  %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].real(),DLx[1].real(),DLy[0].real(),DLy[1].real(),DLz[0].real(),DLz[1].real(), DLx[2].real(),DLx[3].real(),DLy[2].real(),DLy[3].real(),DLz[2].real(),DLz[3].real(),DLx[4].real(),DLx[5].real(),DLy[4].real(),DLy[5].real(),DLz[4].real(),DLz[5].real());
-fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",DLx[0].imag(),DLx[1].imag(),DLy[0].imag(),DLy[1].imag(),DLz[0].imag(),DLz[1].imag(), DLx[2].imag(),DLx[3].imag(),DLy[2].imag(),DLy[3].imag(),DLz[2].imag(),DLz[3].imag(),DLx[4].imag(),DLx[5].imag(),DLy[4].imag(),DLy[5].imag(),DLz[4].imag(),DLz[5].imag());
 
 /* Integrants (dldw),                  0 -> Ext-Scat (Electric)
                                        1 -> Ext-Scat (Magnetic)
@@ -816,41 +638,19 @@ fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g 
                                        3 -> Scat-Scat (Magnetic)
                                        4 -> Ext-Ext (Electric)
                                        5 -> Ext-Ext (Magnetic)*/
-/*cout << endl;
-cout << "DLEx : " << DLx[0] << endl;
-cout << "DLHx : " << DLx[1] << endl;                // prints result
-cout << endl;*/
+
+cout << "b : " << b/nm << endl;
+
 cout << "DLEy : " << DLy[0] << endl;
 cout << "DLHy : " << DLy[1] << endl;                // prints result
 cout << endl;
-cout << "DLEz : " << DLz[0] << endl;
-cout << "DLHz : " << DLz[1] << endl;
-cout << endl;
-/*cout << "DLEsx : " << DLx[2] << endl;
-cout << "DLHsx : " << DLx[3] << endl;                // prints result
-cout << endl;*/
+
 cout << "DLEsy : " << DLy[2] << endl;
 cout << "DLHsy : " << DLy[3] << endl;                // prints result
 cout << endl;
-cout << "DLEsz : " << DLz[2] << endl;
-cout << "DLHsz : " << DLz[3] << endl;
-cout << endl;
+
 cout << "DL : " << DLy[0] + DLy[1] + DLy[2] + DLy[3] << endl;
 cout << endl; 
-
-//cout << "r = " << r/nm << "nm." << endl;
-//cout << "b = " << b/nm << "nm." << endl;
-//cout << "v = " << vv << " c." << endl;
-/*cout << "DLEex : " << DLx[4] << endl;
-cout << "DLHex : " << DLx[5] << endl;                // prints result
-cout << endl;
-cout << "DLEey : " << DLy[4] << endl;
-cout << "DLHey : " << DLy[5] << endl;                // prints result
-cout << endl;
-cout << "DLEez : " << DLz[4] << endl;
-cout << "DLHez : " << DLz[5] << endl;
-cout << endl;
-cout << endl;*/
 
 } //end void
 
@@ -866,17 +666,69 @@ cout.precision(17);
 cout << endl;
 cout << "Momentum Gauss - Kronrod :" << endl;
 cout << endl;
-cout << "Lmax = " << Lmax << endl;
-cout << endl;
+//cout << "Lmax = " << Lmax << endl;
+//cout << endl;
 
-double b = 20.0*nm;                        
-double a = 1.0*nm;                        
-double r = 1.05*nm;
-double vv = 0.7;
+/*double b = 21.5*nm;                        
+double a = 20.0*nm;                        
+double r = 20.05*nm;
+double vv = 0.5;*/
+
+double b = 51.5*nm;                        
+double a = 50.0*nm;                        
+double r = 50.05*nm;
+double vv = 0.5;
+
+/*double b = 5.5*nm;                        
+double a = 5.0*nm;                        
+double r = 5.05*nm;
+double vv = 0.5;*/
+
+
+/*double b = 11.5*nm;                        
+double a = 10.0*nm;                        
+double r = 10.05*nm;
+double vv = 0.5;*/
+
+dcomplex DLy[6];
+double Ly;
 
 // Start the timer
 auto start = std::chrono::high_resolution_clock::now();
-DL(r, vv, b, a);
+for (Lmax = 1; Lmax < 15; Lmax++){
+cout << "Lmax = " << Lmax << endl;
+cout << endl;
+char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
+sprintf(filename, "Results/LybAl/%d/DL_a%.2gnm_v%.2g.dat", Lmax,a/(1.*nm), vv);
+FILE *fpp = fopen(filename,"w+");
+fprintf(fpp,"Total Angular momentum transfered, a: %.2gnm    v: %.2gc   Lmax: %d  \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
+fprintf(fpp,"\n");
+fprintf(fpp,"         b         DLEy                  DLHy                  DLEsy                  DLHsy                  DLEsyExt                  DLHsyExt                  DLy\n");
+
+
+char filenamer[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
+sprintf(filenamer, "Results/LybAl/%d/DL_a%.2gnm_v%.2g_error.dat", Lmax, a/(1.*nm), vv);
+FILE *fppe = fopen(filenamer,"w+");
+fprintf(fppe,"Total Angular momentum transfered (error), a: %.2gnm    v: %.2gc   Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
+fprintf(fppe,"\n");
+fprintf(fppe,"         b       errDLEy                errDLHy                 errDLEsy                errDLHsy                 errDLEsyExt                errDLHsyExt\n");
+
+for (int i = 0; i <= 9; ++i)
+{
+   //b = (5.5 + (10.0-5.5)*i/9)*nm;
+   //b = (11.5 + (20.0-11.5)*i/10)*nm;
+   //b = (21.5 + (30.0-21.5)*i/10)*nm;
+   b = (51.5 + (60.0-51.5)*i/10)*nm;
+   DL(r, vv, b, a, DLy);
+   Ly=0.0;
+
+   for (int rr = 0; rr < 6; ++rr){ 
+   Ly += DLy[rr].real();}
+
+   // Here print the total momentum
+   fprintf(fpp,"%.17g %.17g %.17g %.17g %.17g  %.17g %.17g %.17g \n",b/(1.*nm),DLy[0].real(),DLy[1].real(),DLy[2].real(),DLy[3].real(),DLy[4].real(),DLy[5].real(), Ly);
+   fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",b/(1.*nm),DLy[0].imag(),DLy[1].imag(),DLy[2].imag(),DLy[3].imag(),DLy[4].imag(),DLy[5].imag());
+}}
 // End the timer
 auto end = std::chrono::high_resolution_clock::now();
 // Calculate the duration

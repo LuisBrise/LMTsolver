@@ -42,7 +42,7 @@ double Gamma  = 0.00555;
 //************************************************
 // Maximum number of multipole to take into account
 
-const int Lmax = 2;
+const int Lmax = 1;
 
 // Order N of the gaussian quadrature (must be odd), the integral is
 // performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
