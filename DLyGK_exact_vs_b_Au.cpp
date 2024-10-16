@@ -371,11 +371,7 @@ double dl = 1.*l;
 //******************************************************************************************************
 //******************************************************************************************************
 
-
-
-
 void Omegas(double xi[2*NN + 4], double xk[2*NN + 4], double xg[2*NN + 4]){
-
 
 double GKQw1[2*nw1 + 1][3], GKQw2[2*nw2 + 1][3];
 gauss_konrod_w(GKQw1,GKQw2);
@@ -414,9 +410,6 @@ xg[i + NN3+ NN1+ NN2] = ((w5-w4)/2.)*GKQw4[i][2];
 }
 
 }
-
-
-
 
 void DL(double r, double vv, double b, double a, dcomplex DLy[6]){
 
@@ -689,15 +682,15 @@ double a = 20.0*nm;
 double r = 20.05*nm;
 double vv = 0.5;*/
 
-/*double b = 51.5*nm;                        
+double b = 51.5*nm;                        
 double a = 50.0*nm;                        
 double r = 50.05*nm;
-double vv = 0.5;*/
+double vv = 0.5;
 
-double b = 5.5*nm;                        
+/*double b = 5.5*nm;                        
 double a = 5.0*nm;                        
 double r = 5.05*nm;
-double vv = 0.5;
+double vv = 0.5;*/
 
 
 /*double b = 11.5*nm;                        
@@ -710,7 +703,7 @@ double Ly;
 
 // Start the timer
 auto start = std::chrono::high_resolution_clock::now();
-for (Lmax = 1; Lmax < 30; Lmax++){
+for (Lmax = 1; Lmax < 31; Lmax++){
 cout << "Lmax = " << Lmax << endl;
 cout << endl;
 char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
@@ -730,10 +723,10 @@ fprintf(fppe,"         b       errDLEy                errDLHy                 er
 
 for (int i = 0; i <= 9; ++i)
 {
-   b = (5.5 + (10.0-5.5)*i/9)*nm;
+   //b = (5.5 + (10.0-5.5)*i/9)*nm;
    //b = (11.5 + (20.0-11.5)*i/10)*nm;
    //b = (21.5 + (30.0-21.5)*i/10)*nm;
-   //b = (51.5 + (60.0-51.5)*i/10)*nm;
+   b = (51.5 + (60.0-51.5)*i/10)*nm;
    DL(r, vv, b, a, DLy);
    Ly=0.0;
 

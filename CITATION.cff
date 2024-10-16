@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Briseño-Gómez
+    given-names: Jorge Luis
+    orcid: https://orcid.org/0000-0001-8412-4868
+title: "Angular momentum transfer from swift electrons to spherical nanoparticles"
+version: 1.0.0
+identifiers:
+  - type: doi
+    value: 10.5281/AMTNPS.1234
+date-released: 2024-10-24

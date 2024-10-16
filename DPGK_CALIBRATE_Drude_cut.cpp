@@ -41,7 +41,7 @@ typedef complex<double> dcomplex;          // Defines complex number with double
 // Order N of the gaussian quadrature (must be odd), the integral is
 // performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
 
-const int Lmax = 1;
+const int Lmax = 10;
 
 
 

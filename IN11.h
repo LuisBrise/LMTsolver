@@ -3,6 +3,7 @@
 
 
 #include <iostream>                                                // Standart i/o C++ library
+#include <cmath>
 #include <chrono>
 #include <complex>                                                 // Compĺex numbers
 #include <boost/math/special_functions/bessel.hpp>                 // BOOST LIBRARIES:  1. BesselK in external fields

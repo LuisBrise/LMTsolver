@@ -11,7 +11,7 @@
 //  
 //	flags 
 //      g++ -o DLGK_exact_vs_v.out DLGK_exact_vs_v.cpp -lcomplex_bessel -w 
-//      g++ -o DLyGK_exact_vs_v.out DLyGK_exact_vs_v.cpp -lcomplex_bessel -w && ./DLyGK_exact_vs_v.out 
+//      g++ -o DLyGK_exact_vs_v_Au.out DLyGK_exact_vs_v_Au.cpp -lcomplex_bessel -w && ./DLyGK_exact_vs_v_Au.out 
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
@@ -683,15 +683,25 @@ cout << endl;
 //cout << "Lmax = " << Lmax << endl;
 //cout << endl;
 
-double b = 5.5*nm;                        
+/*double b = 5.5*nm;                        
 double a = 5.0*nm;                        
 double r = 5.05*nm;
-double vv = 0.5;
+double vv = 0.5;*/
 
 /*double b = 11.0*nm;                        
 double a = 10.0*nm;                        
 double r = 10.05*nm;
 double vv = 0.5;*/
+
+/*double b = 21.0*nm;                        
+double a = 20.0*nm;                        
+double r = 20.05*nm;
+double vv = 0.5;*/
+
+double b = 51.0*nm;                        
+double a = 50.0*nm;                        
+double r = 50.05*nm;
+double vv = 0.5;
 
 dcomplex DLy[6];
 double Ly;
