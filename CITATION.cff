@@ -1,12 +1,31 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+title: >-
+  Angular momentum transfer from swift electrons to
+  spherical nanoparticles
+message: 'If you use this software, please cite it as below.'
+type: software
 authors:
-  - family-names: Briseño-Gómez
-    given-names: Jorge Luis
-    orcid: https://orcid.org/0000-0001-8412-4868
-title: "Angular momentum transfer from swift electrons to spherical nanoparticles"
+  - given-names: Jorge Luis
+    family-names: Briseño-Gómez
+    email: jorgeluisbrisenio@ciencias.unam.mx
+    affiliation: UNAM
+    orcid: 'https://orcid.org/0000-0001-8412-4868'
+repository-code: 'https://github.com/LuisBrise/NPs'
+url: 'https://github.com/LuisBrise/NPs'
+abstract: >-
+  This repository contains a code developed for the
+  theoretical study of angular momentum transfer (AMT) from
+  swift electrons to spherical nanoparticles using classical
+  electrodynamics. The code efficiently computes the
+  integrals of the Maxwell stress tensor in frequency space
+  through quadrature methods and applies it to various
+  materials, including plasmonic and dielectric NPs.
+  Designed to handle nanoparticles up to 50 nm in radius, it
+  enables the study of AMT across the entire nanoscale,
+  offering both analytical solutions and numerical
+  implementations for precise calculations.
 version: 1.0.0
-identifiers:
-  - type: doi
-    value: 10.5281/AMTNPS.1234
-date-released: 2024-10-24
+date-released: '2024-10-16'
