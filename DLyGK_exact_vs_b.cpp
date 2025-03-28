@@ -1,17 +1,30 @@
 //*****************************************************************************************************************
-//
-//   DLGK_exact_vs_b.cpp:
-//
-//    This program calculates the spectral linear momentum dl/dw transferred to a 
-//   NP due a fast swfit electron. It calculate the closed surface integral 
-//   analitically, obteining a double multipolar sum espresion. The spectrum is 
-//   written to a file named "dldw*.dat". The program ONLY considers the external field.
-//   Also, the integral in frequencies is calculated via Gauss - Kronrod using
-//   a partition set to fast convergence. The results are written to a file named "DL*.dat". 
-//  
+/*
+DLGK_exact_vs_b.cpp
+
+Description:
+This program calculates the spectral angular momentum (dL/dω) transferred to a 
+nanoparticle (NP) due to the interaction with a fast-moving electron. The calculation 
+is performed by analytically solving the closed surface integral, resulting in a 
+double multipolar sum expression. The program focuses on the external field 
+contribution, the scattered field contribution and the interaction contribution.
+This program calculates the total angular momentum transfer (DeltaL) for different 
+values of the impact parameter b.
+
+Key Features:
+- The frequency integral is computed using the Gauss-Kronrod quadrature method, 
+  with an adaptive partition for rapid convergence.
+- The spectral results are saved to files named "dldw_*.dat".
+- The integrated angular momentum results are saved to files named "DL_*.dat".
+
+Usage:
+- The user can input parameters manually or load them from a CSV file.
+- The program supports multiple parameter sets and stops when the solution converges 
+  to a specified relative error threshold or reaches the maximum multipolar order (Lmax = 50).
+*/  
 //	flags 
-//      g++ -o DLGK_exact_vs_b.out DLGK_exact_vs_b.cpp -lcomplex_bessel -w 
-//      g++ -o DLGK_exact_vs_b.out DLGK_exact_vs_b.cpp -lcomplex_bessel -w && ./DLGK_exact_vs_b.out 
+//      g++ -o OUT/DLyGK_exact_vs_b.out DLyGK_exact_vs_b.cpp -lcomplex_bessel -w 
+//      g++ -o OUT/DLyGK_exact_vs_b.out DLyGK_exact_vs_b.cpp -lcomplex_bessel -w && ./OUT/DLyGK_exact_vs_b.out 
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
@@ -19,8 +32,8 @@
 //*****************************************************************************************************************
 //*****************************************************************************************************************
 
-
-#include "IN16.h"
+#include "Irreducible_Integrals/IN51.h"
+int Lmax = 51;
 
 // Spherical Bessel (Hankel) funcions with *complex argument* (very important) for the scatterred fields. 
 // Only found in SLATEC project (FORTRAN 77).
@@ -37,32 +50,11 @@ typedef complex<double> dcomplex;          // Defines complex number with double
 double Cspeed = 137.035999139;
 double Pi     = boost::math::constants::pi<double>();           // Parameter for Drude model of the NP and atomic units
 double nm     = 100./5.2918;
-double wp     = 0.48297106037599996;
-double Gamma  = 0.007244389509;
 
-//************************************************
-// Maximum number of multipole to take into account
-
-int Lmax = 3;
-
-// Order N of the gaussian quadrature (must be odd), the integral is
-// performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
-const int nw1 = 51;   
-const int nw2 = 251;   
-const int nw3 = 51;                   // Drude Al
-const int nw4 = 51;  
-const int NN = nw1 + nw2 + nw3 + nw4;
-
-double w1 = 0.;
-double w2 = .2;
-double w3 = .4;
-double w4 = 2.;
-double w5 = 40.; // Omega cut for freq. integral
-
-int iw1 = 2*nw1 + 1;
-int iw2 = 2*(nw1 + nw2) + 2;
-int iw3 = 2*(nw1 + nw2 +nw3) + 3;
-int iw4 = 2*NN + 4;
+//**********************************************************************
+// *********************** Dielectric function ***************************
+//**********************************************************************
+#include "Dielectric_Functions/EpsilonDrudeAl.h"
 
 
 //************************************************
@@ -77,14 +69,6 @@ static double IY[LSmax][LSmax][2*LSmax + 1][2*LSmax + 1];
 static double IZ[LSmax][LSmax][2*LSmax + 1][2*LSmax + 1];
 static double ID[LSmax][LSmax][2*LSmax + 1][2*LSmax + 1];
 static double III[LSmax][LSmax+1][LSmax+1];
-
-//**********************************************************************
-// *********************** Dielectric function ***************************
-//**********************************************************************
-
-dcomplex eps(double w){
-return 1. - pow(wp,2.)/(w*(w + 1i*Gamma));
-} 
 
 
 //**********************************************************************
@@ -284,8 +268,10 @@ dcomplex  res = 0.;
 
 if(m >= 0){
 for (int j = m; j <= l; ++j){
-	res += pow(betav,-(l+1))*pow(1i,l-j)*factorial2(2*l+1)*alm(l,m)*III[l-1][m][j]
-	/(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
+	//res += pow(betav,-(l+1))*pow(1i,l-j)*factorial2(2*l+1)*alm(l,m)*III[l-1][m][j]
+	///(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
+    res += pow(betav,-(l+1))*pow(1i,l-j)*factorial2(2*l+1)*III[l-1][m][j]
+    /(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
 	}
 return res;
  } 
@@ -356,11 +342,7 @@ double dl = 1.*l;
 //******************************************************************************************************
 //******************************************************************************************************
 
-
-
-
 void Omegas(double xi[2*NN + 4], double xk[2*NN + 4], double xg[2*NN + 4]){
-
 
 double GKQw1[2*nw1 + 1][3], GKQw2[2*nw2 + 1][3];
 gauss_konrod_w(GKQw1,GKQw2);
@@ -400,9 +382,6 @@ xg[i + NN3+ NN1+ NN2] = ((w5-w4)/2.)*GKQw4[i][2];
 
 }
 
-
-
-
 void DL(double r, double vv, double b, double a, dcomplex DLy[6]){
 
 double dm;
@@ -419,6 +398,7 @@ dcomplex IErty[4], IHrty[4];
 dcomplex IErfy[4], IHrfy[4];
 
 double dl1, dl2, dm1, dm2;
+double normfactor; // A normalization factor due to the normalization of integrals
 
 double IN1, IV1, IW1, IW2, IU1, IU2;
 FUN(IM,IN,IU,IV,IW,IX,IY,IZ,ID,III);
@@ -430,8 +410,8 @@ Omegas(xi, xk, xg);
 
 double w, k0;
 
-char filenamex[sizeof "Results/dldw_a1nm_v0.99c_b1.5nm_extF2.dat"];
-sprintf(filenamex, "Results/LybAl/%d/dldw_a%.2gnm_v%.2g_b%.2gnm.dat", Lmax, a/(1.*nm), vv, b/(1.*nm));
+char filenamex[sizeof "Results/50/dldw_a1nm_v0.99c_b1.5nm_extF2.dat"];
+sprintf(filenamex, "Results/%s/%d/dldw_a%.2gnm_v%.2g_b%.2gnm.dat", directoryLb, Lmax, a/(1.*nm), vv, b/(1.*nm));
 FILE *fpx = fopen(filenamex,"w+");
 fprintf(fpx,"Angular Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
 fprintf(fpx,"\n");
@@ -472,8 +452,11 @@ for (int l = 1; l <= Lmax; l++){
         aa = AA[l-1][m+l];
         bb = BB[l-1][l+m];
     
-        DE[l-1][m + l] = pow(1i,l)*alm(l,m)*PsiE(l,m,w,b,vv, bb);
-        CM[l-1][m + l] = pow(1i,l)*alm(l,m)*PsiM(l,m,w,b,vv, aa);
+        DE[l-1][m + l] = pow(1i,l)*PsiE(l,m,w,b,vv, bb);
+        CM[l-1][m + l] = pow(1i,l)*PsiM(l,m,w,b,vv, aa);
+
+        //DE[l-1][m + l] = pow(1i,l)*alm(l,m)*PsiE(l,m,w,b,vv, bb);
+        //CM[l-1][m + l] = pow(1i,l)*alm(l,m)*PsiM(l,m,w,b,vv, aa);
     
     }
 } 
@@ -495,19 +478,20 @@ for (int l2 = 1; l2 <= Lmax; l2++){
               for (int m2 = -l2; m2 <= l2; m2++){
                    dm2 = 1.*m2;
 
-
-
                     if(std::abs (m2-m1)==1){
 
-                                    // Radial - Radial 
+                                    // Radial - Radial
+                        normfactor = pow((2.*dl1+1.)*(l1+m1+1.)/((2.*dl1+3.)*(l1-m1+1.)),0.5);
 
                         IV1 = IV[l1-1][l2-1][m1+l1][m2+l2];
 
                         IW1 = IW[l1-1][l2-1][m1+l1][m2+l2];
-                        IW2 = IW[l1][l2-1][m1+l1+1][m2+l2];   
+                        //IW2 = IW[l1][l2-1][m1+l1+1][m2+l2]; 
+                        IW2 = normfactor*IW[l1][l2-1][m1+l1+1][m2+l2];   
 
                         IU1 = IU[l1-1][l2-1][m1+l1][m2+l2];
-                        IU2 = IU[l1][l2-1][m1+l1+1][m2+l2];
+                        //IU2 = IU[l1][l2-1][m1+l1+1][m2+l2];
+                        IU2 = normfactor*IU[l1][l2-1][m1+l1+1][m2+l2];
 
                         /* Integrants, 0 -> Scat
                                        1 -> Ext
@@ -616,9 +600,6 @@ for (int l2 = 1; l2 <= Lmax; l2++){
 } // for l2
 } //for l1
 
-
-
-
 for (int rr = 0; rr < 6; ++rr){ 
   DLy[rr] += (xk[i]*(1. + 1i) - 1i*xg[i])*dldwy[rr];
 }
@@ -639,18 +620,19 @@ fprintf(fpx,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",b/(1.*nm),w,dld
                                        4 -> Ext-Ext (Electric)
                                        5 -> Ext-Ext (Magnetic)*/
 
-cout << "b : " << b/nm << endl;
+//cout << "DLEy : " << DLy[0] << endl;
+//cout << "DLHy : " << DLy[1] << endl;                // prints result
+//cout << endl;
 
-cout << "DLEy : " << DLy[0] << endl;
-cout << "DLHy : " << DLy[1] << endl;                // prints result
-cout << endl;
+//cout << "DLEsy : " << DLy[2] << endl;
+//cout << "DLHsy : " << DLy[3] << endl;                // prints result
+//cout << endl;
 
-cout << "DLEsy : " << DLy[2] << endl;
-cout << "DLHsy : " << DLy[3] << endl;                // prints result
-cout << endl;
+cout << "DLy : " << DLy[0] + DLy[1] + DLy[2] + DLy[3] << endl;
+//cout << endl;
 
-cout << "DL : " << DLy[0] + DLy[1] + DLy[2] + DLy[3] << endl;
-cout << endl; 
+// Close the files
+fclose(fpx); 
 
 } //end void
 
@@ -660,100 +642,262 @@ cout << endl;
 //********************************************** MAIN PROGRAM *********************************************
 int main(void){
 
-
 cout.precision(17);
 
+int choice;
+
 cout << endl;
-cout << "Momentum Gauss - Kronrod :" << endl;
+cout << R"(DLGK_exact_vs_b.cpp
+
+Description:
+This program calculates the spectral angular momentum (dL/dω) transferred to a 
+nanoparticle (NP) due to the interaction with a fast-moving electron. The calculation 
+is performed by analytically solving the closed surface integral, resulting in a 
+double multipolar sum expression. The program focuses exclusively on the external field 
+contribution.This program calculates the total angular momentum transfer (DeltaL) for different 
+values of the impact parameter b.
+
+Key Features:
+- The frequency integral is computed using the Gauss-Kronrod quadrature method, 
+  with an adaptive partition for rapid convergence.
+- The spectral results are saved to files named "dldw_*.dat".
+- The integrated angular momentum results are saved to files named "DL_*.dat".
+
+Usage:
+- The user can input parameters manually or load them from a CSV file.
+- The program supports multiple parameter sets and stops when the solution converges 
+  to a specified relative error threshold or reaches the maximum multipolar order (Lmax = 50).
+
+  )" << endl << endl;
+
+cout << "Select an option to input parameters:" << endl;
+    cout << R"(1. Select the following parameters
+                double a = 5.0*nm;
+                double bInit = 5.5*nm;
+                double bFin = 10.0*nm;
+                double r = 5.05*nm;
+                double vv = 0.7;)" << endl;
+    cout << R"(2. Select the following parameters
+                double a = 10.0*nm; 
+                double bInit = 11.5*nm;
+                double bFin = 20.0*nm;
+                double r = 10.05*nm;
+                double vv = 0.7;)" << endl;
+    cout << R"(3. Select the following parameters
+                double a = 20.0*nm;
+                double bInit = 21.5*nm;
+                double bFin = 30.0*nm;                             
+                double r = 20.05*nm;
+                double vv = 0.7;)" << endl;
+    cout << R"(4. Select the following parameters
+                double a = 50.0*nm;
+                double bInit = 51.5*nm;
+                double bFin = 60.0*nm;                             
+                double r = 50.05*nm;
+                double vv = 0.7;)" << endl;
+    cout << R"(5. Load parameters from parameters_vs_b.csv file
+                Note that the file should be written in the form:
+                    a,bInit,bFin,r,vv
+                    50.0,51.5,60.0,50.05,0.5)" << endl;
+    cout << "Option:  ";
+    cin >> choice;
 cout << endl;
-//cout << "Lmax = " << Lmax << endl;
-//cout << endl;
 
-/*double b = 21.5*nm;                        
-double a = 20.0*nm;                        
-double r = 20.05*nm;
-double vv = 0.5;*/
+double a, b, bInit, bFin, r, vv;
 
-double b = 51.5*nm;                        
-double a = 50.0*nm;                        
-double r = 50.05*nm;
-double vv = 0.5;
+if (choice == 1) {                        
+        a = 5.0*nm;     
+        bInit = 5.5*nm;
+        bFin = 10.0*nm;                   
+        r = 5.05*nm;
+        vv = 0.7;
+    } 
+else if (choice == 2) {                        
+        a = 10.0*nm;
+        bInit = 11.5*nm;
+        bFin = 20.0*nm;                        
+        r = 10.05*nm;
+        vv = 0.7;
+}
+else if (choice == 3) {                        
+        a = 20.0*nm;
+        bInit = 21.5*nm;
+        bFin = 30.0*nm;                        
+        r = 20.05*nm;
+        vv = 0.7;
+}
+else if (choice == 4) {                        
+        a = 50.0*nm;
+        bInit = 51.5*nm;
+        bFin = 60.0*nm;                       
+        r = 50.05*nm;
+        vv = 0.7;
+}
+else if (choice == 5) {
+        string filename = "Parameters/parameters_vs_b.csv";
+        cout << R"(Reading the parameters in the parameters_vs_b.csv filename. 
+                    Note that the file should be written in the form:
+                    a,bInit, bFin,r,vv
+                    50.0,51.5,60.0,50.05,0.5)";
+        //cin >> filename;
 
-/*double b = 5.5*nm;                        
-double a = 5.0*nm;                        
-double r = 5.05*nm;
-double vv = 0.5;*/
+        ifstream file(filename);
+        if (!file.is_open()) {
+            cerr << "Error opening file!" << endl;
+            return 1;
+        }
 
+        string line;
+        getline(file, line); // Skip header
+        getline(file, line);
 
-/*double b = 11.5*nm;                        
-double a = 10.0*nm;                        
-double r = 10.05*nm;
-double vv = 0.5;*/
+        stringstream ss(line);
+        string value;
+
+        getline(ss, value, ',');
+        cout << endl;
+        cout << endl;
+        cout << "Parameters: \n \n";
+        cout << "a = " << stod(value) << " nm\n";
+        a = stod(value) * nm;
+
+        getline(ss, value, ',');
+        cout << "bInit = " << stod(value) << " nm \n";
+        bInit = stod(value) * nm;
+
+        getline(ss, value, ',');
+        cout << "bFin = " << stod(value) << " nm \n";
+        bFin = stod(value) * nm;
+
+        getline(ss, value, ',');
+        cout << "r = " << stod(value) << " nm \n";
+        r = stod(value) * nm;
+
+        getline(ss, value, ',');
+        cout << "vv = " << stod(value) << "*c \n";
+        vv = stod(value);
+
+        cout << endl;
+        cout << endl;
+        file.close();
+    } else {
+        cerr << "Invalid choice!" << endl;
+        return 1;
+    }
 
 dcomplex DLy[6];
-double Ly;
+const double errorThreshold = 0.0001; // 0.01% threshold
+const int maxLmax = 51; // Maximum multipolar order
+const int numOfPoints = 9; // Number of points for b
+int minLmax; // Minimum multipolar order
+
+cout << "Select minimum value of multipolar order L (suggested-->1):  ";
+    cin >> minLmax;
+cout << endl;
+
+// Vector to store Ly values for each i in the previous Lmax iteration
+vector<double> previousLy(numOfPoints + 1, 0.0); // Initialize to 0.0
+
+char filenamel[sizeof "Results/MultipolarConvergence_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
+sprintf(filenamel, "Results/%s/MultipolarConvergence_a%.2gnm_v%.2g.dat", directoryLb, a/(1.*nm), vv);
+FILE *fppl = fopen(filenamel,"w+");
+fprintf(fppl,"Multipolar Convergence analysis, a: %.2gnm    v: %.2gc", a/(1.*nm), vv);
+fprintf(fppl,"\n");
+fprintf(fppl,"         Lmax       Average Relative Error\n");
 
 // Start the timer
 auto start = std::chrono::high_resolution_clock::now();
-for (Lmax = 1; Lmax < 15; Lmax++){
+//
+// Start loop for Lmax
+//
+for (Lmax = minLmax; Lmax <= maxLmax; Lmax++){
 cout << "Lmax = " << Lmax << endl;
-cout << endl;
-char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
-sprintf(filename, "Results/LybAl/%d/DL_a%.2gnm_v%.2g.dat", Lmax,a/(1.*nm), vv);
+//cout << endl;
+char filename[sizeof "Results/50/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
+sprintf(filename, "Results/%s/%d/DL_a%.2gnm_v%.2g.dat", directoryLb, Lmax,a/(1.*nm), vv);
 FILE *fpp = fopen(filename,"w+");
-fprintf(fpp,"Total Angular momentum transfered, a: %.2gnm    v: %.2gc   Lmax: %d  \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
+fprintf(fpp,"Total Angular momentum transfered, a: %.2gnm    v: %.2gc   Lmax: %d  \n", a/(1.*nm), vv, Lmax);
 fprintf(fpp,"\n");
 fprintf(fpp,"         b         DLEy                  DLHy                  DLEsy                  DLHsy                  DLEsyExt                  DLHsyExt                  DLy\n");
 
 
-char filenamer[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
-sprintf(filenamer, "Results/LybAl/%d/DL_a%.2gnm_v%.2g_error.dat", Lmax, a/(1.*nm), vv);
+char filenamer[sizeof "Results/50/DL_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
+sprintf(filenamer, "Results/%s/%d/DL_a%.2gnm_v%.2g_error.dat", directoryLb, Lmax, a/(1.*nm), vv);
 FILE *fppe = fopen(filenamer,"w+");
-fprintf(fppe,"Total Angular momentum transfered (error), a: %.2gnm    v: %.2gc   Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
+fprintf(fppe,"Total Angular momentum transfered (error), a: %.2gnm    v: %.2gc   Lmax: %d \n", a/(1.*nm), vv, Lmax);
 fprintf(fppe,"\n");
 fprintf(fppe,"         b       errDLEy                errDLHy                 errDLEsy                errDLHsy                 errDLEsyExt                errDLHsyExt\n");
 
-for (int i = 0; i <= 9; ++i)
-{
-   //b = (5.5 + (10.0-5.5)*i/9)*nm;
-   //b = (11.5 + (20.0-11.5)*i/10)*nm;
-   //b = (21.5 + (30.0-21.5)*i/10)*nm;
-   b = (51.5 + (60.0-51.5)*i/10)*nm;
+double totalRelativeError = 0.0; // Accumulator for relative errors
+bool thresholdReached = false;
+
+for (int i = 0; i <= numOfPoints; ++i)
+{   
+    b = (bInit + (bFin-bInit)*i/numOfPoints);
+
    DL(r, vv, b, a, DLy);
-   Ly=0.0;
+   double Ly=0.0;
 
    for (int rr = 0; rr < 6; ++rr){ 
    Ly += DLy[rr].real();}
 
+   // Calculate the error
+    double errorLy = fabs(Ly - previousLy[i]);
+    double relativeError = errorLy / fabs(Ly);
+
+    // Accumulate the relative error
+    totalRelativeError += relativeError;
+
    // Here print the total momentum
    fprintf(fpp,"%.17g %.17g %.17g %.17g %.17g  %.17g %.17g %.17g \n",b/(1.*nm),DLy[0].real(),DLy[1].real(),DLy[2].real(),DLy[3].real(),DLy[4].real(),DLy[5].real(), Ly);
    fprintf(fppe,"%.17g %.17g %.17g %.17g %.17g %.17g %.17g \n",b/(1.*nm),DLy[0].imag(),DLy[1].imag(),DLy[2].imag(),DLy[3].imag(),DLy[4].imag(),DLy[5].imag());
-}}
+
+   // Update previousLy for the next iteration
+    previousLy[i] = Ly;
+        }
+
+        // Calculate the average relative error
+        double averageRelativeError = totalRelativeError / (numOfPoints + 1);
+        fprintf(fppl,"%d %.17g\n",Lmax,averageRelativeError);
+        cout << "Average Relative Error is: " << averageRelativeError << endl;
+        cout << "------------------------------------------------------" << endl << endl;
+
+        // Check if the average error is below the threshold
+        if (averageRelativeError < errorThreshold) {
+            thresholdReached = true;
+            fprintf(fppl,"Convergence achieved at Lmax =%d with average relative error = %.17g\n",Lmax,averageRelativeError);
+            cout << "Convergence achieved at Lmax = " << Lmax << " with average relative error = " << averageRelativeError << endl;
+            cout << "------------------------------------------------------" << endl << endl;
+        }
+
+        // Close the files
+        fclose(fpp);
+        fclose(fppe);
+
+        // Check if the threshold was reached
+        if (thresholdReached) {
+            break; // Exit the outer loop
+        }
+    }
+
+
 // End the timer
 auto end = std::chrono::high_resolution_clock::now();
 // Calculate the duration
 std::chrono::duration<double> duration = end - start;
 // Print the duration in seconds
 std::cout << "Execution time: " << duration.count() << " seconds." << std::endl;
+fprintf(fppl,"Execution time: %.17g seconds.\n",duration.count());
+fclose(fppl);
 
-cout << "a = " << a/nm << "nm." << endl;
-cout << "r = " << r/nm << "nm." << endl;
+cout << "a = " << a / nm << "nm." << endl;
+cout << "r = " << r / nm << "nm." << endl;
 cout << "v = " << vv << "c." << endl;
-cout << "b = " << b/nm << "nm." << endl;
+cout << "bInit = " << bInit / nm << "nm." << endl;
+cout << "bFin = " << bFin / nm << "nm." << endl;
 cout << endl;
-
-/**for (int i = 0; i < 10; ++i)
-{
-    //r =(1.05 + i)*nm;
-    //b = (1.5 + i)*nm;
-    v = 0.1 + (0.99-0.1)*i/10;
-    DL(r, v, b, a);
-}**/
-     
-
  
 return(0);
-
 
 }
 

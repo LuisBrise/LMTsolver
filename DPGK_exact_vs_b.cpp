@@ -1,5 +1,39 @@
+//*****************************************************************************************************************
+/*
+DPGK_exact_vs_b.cpp
 
-#include "IN41.h"                                                            
+Description:
+This program calculates the spectral linear momentum (dP/dω) transferred to a 
+nanoparticle (NP) due to the interaction with a fast-moving electron. The calculation 
+is performed by analytically solving the closed surface integral, resulting in a 
+double multipolar sum expression. The program focuses on the external field 
+contribution, the scattered field contribution and the interaction contribution.
+This program calculates the total angular momentum transfer (DeltaP) for different 
+values of the impact parameter b.
+
+Key Features:
+- The frequency integral is computed using the Gauss-Kronrod quadrature method, 
+  with an adaptive partition for rapid convergence.
+- The spectral results are saved to files named "dpdw_*.dat".
+- The integrated angular momentum results are saved to files named "DP_*.dat".
+
+Usage:
+- The user can input parameters manually or load them from a CSV file.
+- The program supports multiple parameter sets and stops when the solution converges 
+  to a specified relative error threshold or reaches the maximum multipolar order (Lmax = 50).
+*/  
+//  flags 
+//      g++ -o OUT/DPGK_exact_vs_b.out DPGK_exact_vs_b.cpp -lcomplex_bessel -w 
+//      g++ -o OUT/DPGK_exact_vs_b.out DPGK_exact_vs_b.cpp -lcomplex_bessel -w && ./OUT/DPGK_exact_vs_b.out 
+//
+//          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
+// Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
+//
+//*****************************************************************************************************************
+//*****************************************************************************************************************
+
+#include "Irreducible_Integrals/IN51.h"
+int Lmax = 51;                                                           
 
 using namespace sp_bessel;
 using namespace std;                  
@@ -9,38 +43,11 @@ typedef complex<double> dcomplex;          // Defines complex number with double
 double Cspeed = 137.035999139;
 double Pi     = boost::math::constants::pi<double>();           // Parameter for Drude model of the NP and atomic units
 double nm     = 100./5.2918;
-double wp     = 0.555;
-double Gamma  = 0.00555;
 
-//************************************************
-// Maximum number of multipole to take into account
-
-const int Lmax = 38;
-
-// Order N of the gaussian quadrature (must be odd), the integral is
-// performed using a 2*N +1 Konrod quadrature, the error is |K2n+1 - Gn|
-// Omega partition ******************************
-const int nw1 = 121;   
-const int nw2 = 101;   
-const int nw3 = 31;                   // Werner Au
-const int nw4 = 15;  
-const int NN = nw1 + nw2 + nw3 + nw4;
-
-
-double w1 = 0.;
-double w2 = .8;
-double w3 = 2.;
-double w4 = 5.;
-double w5 = 50.;   // This last frequency strongly depends of impact parameter and speed!!
-                   // In Au, b=1.5nm a=1nm, for v=0.5 appx 35,  v=0.8 appx    ,v=.99 appx 180..
-
-int iw1 = 2*nw1 + 1;
-int iw2 = 2*(nw1 + nw2) + 2;
-int iw3 = 2*(nw1 + nw2 +nw3) + 3;
-int iw4 = 2*NN + 4;
-
-
-
+//**********************************************************************
+// *********************** Dielectric function ***************************
+//**********************************************************************
+#include "Dielectric_Functions/EpsilonDrude.h"
 
 //************************************************
 
@@ -56,31 +63,6 @@ static double ID[LSmax][LSmax][2*LSmax + 1][2*LSmax + 1];
 static double III[LSmax][LSmax+1][LSmax+1];
 
 //**********************************************************************
-// *********************** Dielectric function ***************************
-//**********************************************************************
-dcomplex LL(double w, double w0, double G, double A) {
-
-  return A/(w0*w0 - w*w - 1i*w*G );
-}
-
-
-dcomplex eps(double w){
-return 1. + LL(w, 0.                , 0.007349864496171 , 0.152742986686889)
-          + LL(w, 0.146997289923419 , 0.055123983721282 , 0.060232866544963)
-          + LL(w, 0.268270054110239 , 0.12127276418682  , 0.074008096113541)
-          + LL(w, 0.47039132775494  , 0.433642005274085 , 0.249709798748062)
-          + LL(w, 0.694562194888153 , 2.60920189614068  , 0.983308298910026)
-          + LL(w, 0.731311517369008 , 0.106573035194478 , 0.088728684574082)
-          + LL(w, 1.0620554196967   , 0.143322357675333 , 0.067525635140093)
-          + LL(w, 1.42219878000908  , 0.477741192251111 , 0.100883298899298)
-          + LL(w, 2.36298143551895  , 1.90728983675636  , 0.734678910324206);
-} 
-
-
-
-//**********************************************************************
-
-
 //**********************************************************************
 // Common functions
 //********************************************************************** 
@@ -325,8 +307,10 @@ dcomplex  res = 0.;
 
 if(m >= 0){
 for (int j = m; j <= l; ++j){
-	res += pow(betav,-(l+1))*pow(1i,l-j)*factorial2(2*l+1)*alm(l,m)*III[l-1][m][j]
-	/(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
+	//res += pow(betav,-(l+1))*pow(1i,l-j)*factorial2(2*l+1)*alm(l,m)*III[l-1][m][j]
+    ///(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
+    res += pow(betav,-(l+1))*pow(1i,l-j)*factorial2(2*l+1)*III[l-1][m][j]
+    /(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
 	}
 return res;
  } 
@@ -462,6 +446,7 @@ dcomplex IEttx[4], IEttz[4], IHttx[4], IHttz[4];
 dcomplex IEffx[4], IEffz[4], IHffx[4], IHffz[4];
 
 double dl1, dl2, dm1, dm2;
+double normfactor2,normfactor3,normfactor4; // A normalization factor due to the normalization of integrals
 
 double IN1, IV1, IW1, IW2, IW3, IU1, IU2, IU3, IU4;
 double IM1, IZ1, IX1, IX2, IX3, IY1, IY2, IY3, IY4, ID1, ID2;
@@ -477,8 +462,8 @@ double w, k0;
 
 
 
-char filenamexee[sizeof "dpdw_a1nm_v0.99c_b1.5nm_Au_exact_L20.dat"];
-sprintf(filenamexee, "dpdw_a%.2gnm_v%.2g_b%.2gnm_Au_exact_L%d.dat", a/(1.*nm), vv, b/(1.*nm),Lmax);
+char filenamexee[sizeof "Results/50/dpdw_a1nm_v0.99c_b1.5nm_Au_exact_L20.dat"];
+sprintf(filenamexee, "Results/%s/%d/dpdw_a%.2gnm_v%.2g_b%.2gnm_Au_exact_L%d.dat", directoryPb, Lmax,a/(1.*nm), vv, b/(1.*nm),Lmax);
 FILE *fpx = fopen(filenamexee,"w+");
 fprintf(fpx,"Momentum Spectrum, a: %.2gnm    v: %.2gc   b: %.2gnm    Lmax: %d \n", a/(1.*nm), vv, b/(1.*nm),Lmax);
 fprintf(fpx,"\n");
@@ -553,18 +538,26 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                     if(m2 == m1+1 || m2 == m1-1){
 
                                     // Radial - Radial 
+                        normfactor2 = pow((2.*dl1+1.)*(l1+m1+1.)/((2.*dl1+3.)*(l1-m1+1.)),0.5);
+                        normfactor3 = pow((2.*dl2+1.)*(l2+m2+1.)/((2.*dl2+3.)*(l2-m2+1.)),0.5);
+                        normfactor4 = normfactor2*normfactor3;
 
                         IN1 = IN[l1-1][l2-1][m1+l1][m2+l2];
                         IV1 = IV[l1-1][l2-1][m1+l1][m2+l2];
 
                         IW1 = IW[l1-1][l2-1][m1+l1][m2+l2];
-                        IW2 = IW[l1][l2-1][m1+l1+1][m2+l2];   
-                        IW3 = IW[l1-1][l2][m1+l1][m2+l2+1];
+                        //IW2 = IW[l1][l2-1][m1+l1+1][m2+l2];   
+                        //IW3 = IW[l1-1][l2][m1+l1][m2+l2+1];
+                        IW2 = normfactor2*IW[l1][l2-1][m1+l1+1][m2+l2];   
+                        IW3 = normfactor3*IW[l1-1][l2][m1+l1][m2+l2+1];
 
                         IU1 = IU[l1-1][l2-1][m1+l1][m2+l2];
-                        IU2 = IU[l1][l2-1][m1+l1+1][m2+l2];
-                        IU3 = IU[l1-1][l2][m1+l1][m2+l2+1];
-                        IU4 = IU[l1][l2][m1+l1+1][m2+l2+1];
+                        //IU2 = IU[l1][l2-1][m1+l1+1][m2+l2];
+                        //IU3 = IU[l1-1][l2][m1+l1][m2+l2+1];
+                        //IU4 = IU[l1][l2][m1+l1+1][m2+l2+1];
+                        IU2 = normfactor2*IU[l1][l2-1][m1+l1+1][m2+l2];
+                        IU3 = normfactor3*IU[l1-1][l2][m1+l1][m2+l2+1];
+                        IU4 = normfactor4*IU[l1][l2][m1+l1+1][m2+l2+1];
 
                         /* Integrants, 0 -> Scat
                                        1 -> Ext
@@ -788,21 +781,30 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
                 if(m2 == m1){
                                               // Radial - Radial 
+                        normfactor2 = pow((2.*dl1+1.)*(l1+m1+1.)/((2.*dl1+3.)*(l1-m1+1.)),0.5);
+                        normfactor3 = pow((2.*dl2+1.)*(l2+m2+1.)/((2.*dl2+3.)*(l2-m2+1.)),0.5);
+                        normfactor4 = normfactor2*normfactor3;
 
                         IM1 = IM[l1-1][l2-1][m1+l1][m2+l2];
                         IZ1 = IZ[l1-1][l2-1][m1+l1][m2+l2];
 
                         ID1 = ID[l1-1][l2-1][m1+l1][m2+l2];
-                        ID2 = ID[l1][l2-1][m1+l1+1][m2+l2];
+                        //ID2 = ID[l1][l2-1][m1+l1+1][m2+l2];
+                        ID2 = normfactor2*ID[l1][l2-1][m1+l1+1][m2+l2];
 
                         IX1 = IX[l1-1][l2-1][m1+l1][m2+l2];
-                        IX2 = IX[l1][l2-1][m1+l1+1][m2+l2];
-                        IX3 = IX[l1-1][l2][m1+l1][m2+l2+1];
+                        //IX2 = IX[l1][l2-1][m1+l1+1][m2+l2];
+                        //IX3 = IX[l1-1][l2][m1+l1][m2+l2+1];
+                        IX2 = normfactor2*IX[l1][l2-1][m1+l1+1][m2+l2];
+                        IX3 = normfactor3*IX[l1-1][l2][m1+l1][m2+l2+1];
 
                         IY1 = IY[l1-1][l2-1][m1+l1][m2+l2];
-                        IY2 = IY[l1][l2-1][m1+l1+1][m2+l2];
-                        IY3 = IY[l1-1][l2][m1+l1][m2+l2+1];
-                        IY4 = IY[l1][l2][m1+l1+1][m2+l2+1];
+                        //IY2 = IY[l1][l2-1][m1+l1+1][m2+l2];
+                        //IY3 = IY[l1-1][l2][m1+l1][m2+l2+1];
+                        //IY4 = IY[l1][l2][m1+l1+1][m2+l2+1];
+                        IY2 = normfactor2*IY[l1][l2-1][m1+l1+1][m2+l2];
+                        IY3 = normfactor3*IY[l1-1][l2][m1+l1][m2+l2+1];
+                        IY4 = normfactor4*IY[l1][l2][m1+l1+1][m2+l2+1];
 
 
 
@@ -1040,8 +1042,10 @@ for (int rr = 0; rr < 6; ++rr){
 cout << "b : " << b/nm << " nm" <<endl;
 cout << "DPx : " << DPx[0] + DPx[1] + DPx[2] + DPx[3] + DPx[4] + DPx[5] << endl;
 cout << "DPz : " << DPz[0] + DPz[1] + DPz[2] + DPz[3] + DPx[4] + DPx[5] << endl;
-cout << endl;
+//cout << endl;
 
+// Close the files
+fclose(fpx); 
 
 } //end void
 

@@ -38,4 +38,8 @@ build/
 Excel/
 Results/
 .vscode/
+OLD/
+OUT/
 
+#Heavy Files
+Irreducible_Integrals/IN51.h
