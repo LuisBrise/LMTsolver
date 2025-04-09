@@ -16,14 +16,19 @@
 //     THIS PROGRAM IS USED FOR CALIBRATING MORE EFICIENT QUADRATURES AND OMEGA INTERVALS!!
 //
 //  flags 
-//      g++ -o OUT/DLGK_CALIBRATE_cut.out DLGK_CALIBRATE_cut.cpp -lcomplex_bessel -w 
-//      g++ -o OUT/DLGK_CALIBRATE_cut.out DLGK_CALIBRATE_cut.cpp -lcomplex_bessel -w && ./OUT/DLGK_CALIBRATE_cut.out 
+//      g++ -o OUT/DLGK_CALIBRATE_Nodes.out DLGK_CALIBRATE_Nodes.cpp -lcomplex_bessel -w 
+//      g++ -o OUT/DLGK_CALIBRATE_Nodes.out DLGK_CALIBRATE_Nodes.cpp -lcomplex_bessel -w && ./OUT/DLGK_CALIBRATE_Nodes.out 
 //
 //          By Jesús Castrejon, jcastrejon@ciencias.unam.mx (25/02/2019)
 // Modified by Jorge Luis Briseño, jorgeluisbrisenio@ciencias.unam.mx (21/02/2023)
 //
 //*****************************************************************************************************************
 //*****************************************************************************************************************
+//*****************************************************************************************************************
+//*****************************************************************************************************************
+#include <iostream>
+#include <cmath>
+#include <limits>
 
 #include <boost/math/quadrature/exp_sinh.hpp>
 
@@ -424,6 +429,47 @@ dldw(r, x, vv, b, a, dldwy);      // Calls function momentum dpdw
 return (dldwy[0] + dldwy[1] + dldwy[2] + dldwy[3]);}
 }
 
+template <unsigned int N>
+double integrate_interval(auto&& f, double a, double b, double tol, double* error, int interval) {
+    //std::cout << "\nIntegrando en el intervalo "<< interval << std::endl;
+    switch (interval) {
+        case 1: return boost::math::quadrature::gauss_kronrod<double, N>::integrate(f, a, b, 5, tol, error);
+        case 2: return boost::math::quadrature::gauss_kronrod<double, N>::integrate(f, a, b, 5, tol, error);
+        case 3: return boost::math::quadrature::gauss_kronrod<double, N>::integrate(f, a, b, 5, tol, error);
+        default: return 0.0;
+    }
+}
+
+double integrate_with_n(auto&& f, double a, double b, double tol, double* error, int interval, unsigned int n) {
+    // Map runtime n to compile-time template instantiations
+    //std::cout << "\nIntegrando con n= " << n << std::endl;
+    switch (n) {
+        case 11:  return integrate_interval<11>(f, a, b, tol, error, interval);
+        case 21:  return integrate_interval<21>(f, a, b, tol, error, interval);
+        case 31:  return integrate_interval<31>(f, a, b, tol, error, interval);
+        case 41:  return integrate_interval<41>(f, a, b, tol, error, interval);
+        case 51:  return integrate_interval<51>(f, a, b, tol, error, interval);
+        case 61:  return integrate_interval<61>(f, a, b, tol, error, interval);
+        case 71:  return integrate_interval<71>(f, a, b, tol, error, interval);
+        case 81:  return integrate_interval<81>(f, a, b, tol, error, interval);
+        case 91:  return integrate_interval<91>(f, a, b, tol, error, interval);
+        case 101:  return integrate_interval<101>(f, a, b, tol, error, interval);
+        case 111:  return integrate_interval<111>(f, a, b, tol, error, interval);
+        case 121:  return integrate_interval<121>(f, a, b, tol, error, interval);
+        case 131:  return integrate_interval<131>(f, a, b, tol, error, interval);
+        case 141:  return integrate_interval<141>(f, a, b, tol, error, interval);
+        case 151:  return integrate_interval<151>(f, a, b, tol, error, interval);
+        case 161:  return integrate_interval<161>(f, a, b, tol, error, interval);
+        case 171:  return integrate_interval<171>(f, a, b, tol, error, interval);
+        case 181:  return integrate_interval<181>(f, a, b, tol, error, interval);
+        case 191:  return integrate_interval<191>(f, a, b, tol, error, interval);
+        case 201:  return integrate_interval<201>(f, a, b, tol, error, interval);
+        default:
+            std::cerr << "Unsupported n=" << n << ". Using n=51 as fallback." << std::endl;
+            return integrate_interval<51>(f, a, b, tol, error, interval);
+    }
+}
+
 //*********************************************************************************************************
 //********************************************** MAIN PROGRAM *********************************************
 int main(void){
@@ -455,62 +501,66 @@ double termination = sqrt(std::numeric_limits<double>::epsilon());
 double error;
 double L1;
 
-cout << "Performing integral 1" << endl;
-double Q  = boost::math::quadrature::gauss_kronrod<double, 101>::integrate(ff,  l1, l2, 5, 5.e-14, &error);
-cout << "Performing integral 2" << endl;
-double Q1 = boost::math::quadrature::gauss_kronrod<double, 201>::integrate(ff, l2, l3, 5, 5.e-14, &error);
-cout << "Performing integral 3" << endl;
-double Q2 = boost::math::quadrature::gauss_kronrod<double, 61>::integrate(ff,  l3, l4, 5, 5.e-14, &error);
+int interval_to_optimize;
+    std::cout << "Ingrese el número del intervalo que desea optimizar (1, 2 o 3): ";
+    std::cin >> interval_to_optimize;
 
+    if (interval_to_optimize < 1 || interval_to_optimize > 3) {
+        std::cout << "Número de intervalo inválido. Saliendo." << std::endl;
+        return 1;
+    }
 
-cout << "Performing integral 4" << endl;
-boost::math::quadrature::exp_sinh<double> integrator;
-double Q3 = integrator.integrate(ff, l4, l5, termination, &error, &L1);
-
-
-double II = Q + Q1 + Q2 + Q3;
-
-
-cout << "I = " << II <<endl<< endl;
-
-
-
-
-
-int i, NN = 24;
-double qq[NN], QQ, lcut[NN];
-
-char filename[sizeof "Results/Tail/errorTail_a50nm_b50nm_vv0.99c.dat"];
-sprintf(filename, "Results/Tail/errorTail_a%.2gnm_b%.2gnm_vv%.2gc.dat",a/(1.*nm), b/(1.*nm),vv);
+    char filename[sizeof "Results/Integral_Orders/errorOrder_a50nm_b50nm_vv0.99c_interval1.dat"];
+sprintf(filename, "Results/Integral_Orders/errorOrder_a%.2gnm_b%.2gnm_vv%.2gc_interval%d.dat",a/(1.*nm), b/(1.*nm),vv,interval_to_optimize);
 FILE *fpp = fopen(filename,"w+");
+    if (!fpp) {
+        std::cerr << "No se pudo abrir el archivo: " << filename << std::endl;
+        return 1;
+    }
 fprintf(fpp,"Percentual error, a: %.2gnm    v: %.2gc   Lmax: %d  \n", a/(1.*nm), vv, b/(1.*nm), Lmax);
 fprintf(fpp,"\n");
-fprintf(fpp,"         wcut         error(%)\n");
+fprintf(fpp,"         n         error(%)\n");
 
-cout << "Performing intragl wcut analysis" << endl;
-cout << "{ " << "wcut" <<" , "<<  "error (%)" << " },"<<endl;
-for ( i = 1; i <= NN ; ++i){
-    //float progress = 100.0f * (i / float(NN));
-    // Print dynamic line
-    //std::cout << "\r"
-    //<< "Progress for i=" << i <<" out of "<< NN <<" : " 
-    //<< std::fixed << std::setprecision(1) << progress << "% "
-    //<< " { " << lcut[i] <<","<<  qq[i] << " },"
-    //<< std::flush;
+    std::cout << "\nOptimizando el Intervalo " << interval_to_optimize << " para el orden de integración 'n':" << std::endl;
 
-lcut[i] = l4 + (lf-l4)*i/NN;
+    unsigned int n = 11; // Valor inicial de n
+    double threshold = 1.0e-4; // Umbral para la diferencia (ajustar según necesidad)
+    double previous_integral = std::numeric_limits<double>::infinity();
+    double current_integral;
 
-QQ  = boost::math::quadrature::gauss_kronrod<double, 151>::integrate(ff, l4, lcut[i], 0, 0, &error);
+    //std::cout << "\nIniciando el bucle" << std::endl;
+    while (true) {
+        //std::cout << "\nIterando con n="<< n << std::endl;
+        double Q = integrate_with_n(ff, 
+    (interval_to_optimize == 1) ? l1 : 
+    (interval_to_optimize == 2) ? l2 : l3,
+    (interval_to_optimize == 1) ? l2 : 
+    (interval_to_optimize == 2) ? l3 : l4,
+    5.e-14, &error, interval_to_optimize, n);
 
-QQ = Q + Q1 + Q2 + QQ;
-qq[i] = abs(1. - QQ/II) ;
+    //double Q = boost::math::quadrature::gauss_kronrod<double, 101>::integrate(ff,  l1, l2, 5, 5.e-14, &error);    
 
-cout << "{ " << lcut[i] <<" , "<<  qq[i] << " },"<<endl;
-fprintf(fpp,"%.17g %.17g \n",lcut[i], qq[i]);
+        current_integral = Q;
+        fprintf(fpp,"%.17g %.17g %.17g \n", static_cast<double>(n), std::abs(current_integral - previous_integral)/std::abs(current_integral));
+        std::cout << "n = " << n << ", Integral = " << current_integral 
+        << ", Error = " << std::abs(current_integral - previous_integral)/std::abs(current_integral)
+        << std::endl;
 
-}
-// Clear the line after completion
-//std::cout << "\r" << std::string(50, ' ') << "\r" << std::flush;
+        if (std::abs(current_integral - previous_integral) < threshold) {
+            std::cout << "Se alcanzó el umbral de convergencia." << std::endl;
+            break;
+        }
+
+        previous_integral = current_integral;
+        n += 10; // Incremento de n
+        if (n > 201) { // Añadir una condición de parada para evitar bucles infinitos
+            std::cout << "Se alcanzó el límite máximo de n." << std::endl;
+            break;
+        }
+    }
+
+    fclose(fpp);
+    return 0;
 
 }
 

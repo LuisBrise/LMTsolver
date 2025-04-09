@@ -3,6 +3,7 @@ static char *directoryLv = "LyvAl";
 static char *directoryLb = "LybAl";
 static char *directoryPv = "PvAl";
 static char *directoryPb = "PbAl";
+static char *nameDFunction = "DrudeAl";
 //**********************************************************************
 // *********************** Dielectric function ***************************
 //**********************************************************************
@@ -23,7 +24,7 @@ const int NN = nw1 + nw2 + nw3 + nw4;
 
 //double w1 = 0.;
 double w1 = 0.1; // Separate the head from the tail in the freq integral
-double w2 = .15;
+double w2 = .15; //0.28
 double w3 = .4;
 double w4 = 2.;
 double w5 = 40.; // Omega cut for freq. integral
