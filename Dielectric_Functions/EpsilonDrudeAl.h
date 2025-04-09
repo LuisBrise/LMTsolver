@@ -23,8 +23,8 @@ const int nw4 = 51;
 const int NN = nw1 + nw2 + nw3 + nw4;
 
 //double w1 = 0.;
-double w1 = 0.1; // Separate the head from the tail in the freq integral
-double w2 = .15; //0.28
+double w1 = 0.; // Separate the head from the tail in the freq integral
+double w2 = .2;
 double w3 = .4;
 double w4 = 2.;
 double w5 = 40.; // Omega cut for freq. integral

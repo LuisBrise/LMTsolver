@@ -75,9 +75,15 @@ static double III[LSmax][LSmax+1][LSmax+1];
 // Common functions
 //********************************************************************** 
 
-double BesselK(int n, double x){
-	return boost::math::cyl_bessel_k(n,x);
-}                                                  
+//double BesselK(int n, double x){
+//  return boost::math::cyl_bessel_k(n,x);
+//}  
+
+dcomplex BesselK(int n, double x){
+    //return boost::math::cyl_bessel_k(n,x);
+    dcomplex z = static_cast<dcomplex>(x);
+    return besselK(n,z);
+}                                                      
 
 double LP(int l, int m, double x){
 	return boost::math::legendre_p(l,m,x);
@@ -811,8 +817,12 @@ auto start = std::chrono::high_resolution_clock::now();
 // Start loop for Lmax
 //
 for (Lmax = minLmax; Lmax <= maxLmax; Lmax++){
-cout << "Lmax = " << Lmax << endl;
-//cout << endl;
+//cout << "Lmax = " << Lmax << endl;
+// Print dynamic line
+cout << "Progress: " 
+          << "Lmax : " << Lmax
+          << " | v : " << vv << "*c"
+          << ", NP radius: " << a/nm << " nm" << endl;
 char filename[sizeof "Results/50/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
 sprintf(filename, "Results/%s/%d/DL_a%.2gnm_v%.2g.dat", directoryLb, Lmax,a/(1.*nm), vv);
 FILE *fpp = fopen(filename,"w+");

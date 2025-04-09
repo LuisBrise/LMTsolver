@@ -80,9 +80,15 @@ static double III[LSmax][LSmax+1][LSmax+1];
 // Common functions
 //********************************************************************** 
 
-double BesselK(int n, double x){
-	return boost::math::cyl_bessel_k(n,x);
-}                                                  
+//double BesselK(int n, double x){
+//	return boost::math::cyl_bessel_k(n,x);
+//}  
+
+dcomplex BesselK(int n, double x){
+    //return boost::math::cyl_bessel_k(n,x);
+    dcomplex z = static_cast<dcomplex>(x);
+    return besselK(n,z);
+}                                              
 
 double LP(int l, int m, double x){
 	return boost::math::legendre_p(l,m,x);
@@ -813,7 +819,7 @@ cout << endl;
 vector<double> previousLy(numOfPoints + 1, 0.0); // Initialize to 0.0
 
 char filenamel[sizeof "Results/MultipolarConvergence_a1nm_v0.99c_b1.5nm_error_extF2.dat"];
-sprintf(filenamel, "Results/%s/MultipolarConvergence_a%.2gnm_b%.2g.dat", directoryLb, a/(1.*nm), b/(1.*nm));
+sprintf(filenamel, "Results/%s/MultipolarConvergence_a%.2gnm_b%.2g.dat", directoryLv, a/(1.*nm), b/(1.*nm));
 FILE *fppl = fopen(filenamel,"w+");
 fprintf(fppl,"Multipolar Convergence analysis, a: %.2gnm    b: %.2gnm", a/(1.*nm), b/(1.*nm));
 fprintf(fppl,"\n");
@@ -827,13 +833,11 @@ auto start = std::chrono::high_resolution_clock::now();
 for (Lmax = minLmax; Lmax <= maxLmax ; Lmax++){
 //cout << "Lmax = " << Lmax << endl;
 // Print dynamic line
-std::cout << "\r"
-          << "Progress: " 
+cout << "Progress: " 
           << "Lmax : " << Lmax
-          << " | v : " << vv
-          << ", NP radius: " << a/nm << " nm"
-          << std::flush;
-cout << endl;
+          << " | b : " << b/nm << " nm"
+          << ", NP radius: " << a/nm << " nm" << endl;
+          //
 char filename[sizeof "Results/DL_a1nm_v0.99c_b1.5nm_extF2.dat"];
 sprintf(filename, "Results/%s/%d/DL_a%.2gnm_b%.2gnm.dat", directoryLv, Lmax,a/(1.*nm), b/(1.*nm));
 FILE *fpp = fopen(filename,"w+");

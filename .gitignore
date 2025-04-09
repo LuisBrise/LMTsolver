@@ -41,5 +41,9 @@ Results/
 OLD/
 OUT/
 
+# Text Files
+*.txt
+*.dat
+
 #Heavy Files
 Irreducible_Integrals/IN51.h

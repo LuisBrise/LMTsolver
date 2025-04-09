@@ -1095,10 +1095,6 @@ fprintf(fppze,"\n");
 fprintf(fppze,"     b        errPz     errPEesZ     errPHesZ     errPEssZ     errPHssZ     errPEeeZ     errPHeeZ\n");
 
 
-
-
-
-
 double b, bb[] = {56.} ;
 
 int k, rr;
