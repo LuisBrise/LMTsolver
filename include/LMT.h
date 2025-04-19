@@ -47,7 +47,8 @@ cout << "Material : " << config.material << endl
      << "Is it a V vs B contour? - " << config.isBvsVContour << endl
      << "Multipolar threshold : " << config.errorThreshold << endl
      << "Number of points in the study : " << config.numOfPoints << endl
-     << "Minimum value of Lmax : " << config.minLmax << endl;
+     << "Minimum value of Lmax : " << config.minLmax << endl
+     << "______________________________________________________" << endl;
 }
 
 void DP(SimulationConfig& config, dcomplex DPx[6], dcomplex DPz[6]){
@@ -78,12 +79,6 @@ double normfactor2,normfactor3,normfactor4; // A normalization factor due to the
 
 double IN1, IV1, IW1, IW2, IW3, IU1, IU2, IU3, IU4;
 double IM1, IZ1, IX1, IX2, IX3, IY1, IY2, IY3, IY4, ID1, ID2;
-//FUN(IM,IN,IU,IV,IW,IX,IY,IZ,ID,III);
-
-
-// Calls the Gauss - Konrod function
-//double xi[2*NN + 4], xk[2*NN + 4], xg[2*NN + 4];
-//Omegas(xi, xk, xg);
 
 double w, k0;
 
@@ -97,16 +92,7 @@ std::ofstream outz(filenamez);
 outz.precision(17);
 outz << "vv\t\t\tb\t\t\tw(au)\t\t\tdpEdwzInt\t\t\tdpHdwzInt\t\t\tdpEdwzScat\t\t\tdpHdwzScat\t\t\tdpEdwzExt\t\t\tdpHdwzExt\n";
 
-dcomplex AA[Lmax][2*Lmax+1], BB[Lmax][2*Lmax+1];
 dcomplex aa, bb;
-
-/*for (int l = 1; l <= Lmax; ++l){
-    for (int m = -l; m <= l; ++m){ 
-    AA[l-1][l+m] = A(l,m,vv);
-    BB[l-1][l+m] = B(l,m,vv);
-    }
-}*/
-
 
 for (int i = 0; i < 6; ++i){
 DPx[i] = 0.;
@@ -134,8 +120,8 @@ for (int l = 1; l <= Lmax; l++){
         aa = AA[l-1][m+l];
         bb = BB[l-1][l+m];
     
-        DE[l-1][m + l] = pow(1i,l)*alm(l,m)*PsiE(l,m,w,b,vv, bb);
-        CM[l-1][m + l] = pow(1i,l)*alm(l,m)*PsiM(l,m,w,b,vv, aa);
+        DE[l-1][m + l] = pow(1i,l)*PsiE(l,m,w,b,vv, bb);
+        CM[l-1][m + l] = pow(1i,l)*PsiM(l,m,w,b,vv, aa);
     
     }
 } 
@@ -405,26 +391,20 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
                         normfactor3 = pow((2.*dl2+1.)*(l2+m2+1.)/((2.*dl2+3.)*(l2-m2+1.)),0.5);
                         normfactor4 = normfactor2*normfactor3;
 
-                        IM1 = IM[l1-1][l2-1][m1+l1][m2+l2];
-                        IZ1 = IZ[l1-1][l2-1][m1+l1][m2+l2];
+                        IM1 = integrals.IM[l1-1][l2-1][m1+l1][m2+l2];
+                        IZ1 = integrals.IZ[l1-1][l2-1][m1+l1][m2+l2];
 
-                        ID1 = ID[l1-1][l2-1][m1+l1][m2+l2];
-                        //ID2 = ID[l1][l2-1][m1+l1+1][m2+l2];
-                        ID2 = normfactor2*ID[l1][l2-1][m1+l1+1][m2+l2];
+                        ID1 = integrals.ID[l1-1][l2-1][m1+l1][m2+l2];
+                        ID2 = normfactor2*integrals.ID[l1][l2-1][m1+l1+1][m2+l2];
 
-                        IX1 = IX[l1-1][l2-1][m1+l1][m2+l2];
-                        //IX2 = IX[l1][l2-1][m1+l1+1][m2+l2];
-                        //IX3 = IX[l1-1][l2][m1+l1][m2+l2+1];
-                        IX2 = normfactor2*IX[l1][l2-1][m1+l1+1][m2+l2];
-                        IX3 = normfactor3*IX[l1-1][l2][m1+l1][m2+l2+1];
+                        IX1 = integrals.IX[l1-1][l2-1][m1+l1][m2+l2];
+                        IX2 = normfactor2*integrals.IX[l1][l2-1][m1+l1+1][m2+l2];
+                        IX3 = normfactor3*integrals.IX[l1-1][l2][m1+l1][m2+l2+1];
 
-                        IY1 = IY[l1-1][l2-1][m1+l1][m2+l2];
-                        //IY2 = IY[l1][l2-1][m1+l1+1][m2+l2];
-                        //IY3 = IY[l1-1][l2][m1+l1][m2+l2+1];
-                        //IY4 = IY[l1][l2][m1+l1+1][m2+l2+1];
-                        IY2 = normfactor2*IY[l1][l2-1][m1+l1+1][m2+l2];
-                        IY3 = normfactor3*IY[l1-1][l2][m1+l1][m2+l2+1];
-                        IY4 = normfactor4*IY[l1][l2][m1+l1+1][m2+l2+1];
+                        IY1 = integrals.IY[l1-1][l2-1][m1+l1][m2+l2];
+                        IY2 = normfactor2*integrals.IY[l1][l2-1][m1+l1+1][m2+l2];
+                        IY3 = normfactor3*integrals.IY[l1-1][l2][m1+l1][m2+l2+1];
+                        IY4 = normfactor4*integrals.IY[l1][l2][m1+l1+1][m2+l2+1];
 
 
 
@@ -611,27 +591,27 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 
 
                      
-                    dpdwx[0] += (1./(4.*Pi))*((0.5*(IErrx[2] - IEttx[2] - IEffx[2]) + IErtx[2] - IErf[2]).real()
+                    dpdwx[0] += (1./(4.*Pi))*pow(r,2)*((0.5*(IErrx[2] - IEttx[2] - IEffx[2]) + IErtx[2] - IErf[2]).real()
                                             + (0.5*(IErrx[3] - IEttx[3] - IEffx[3]) + IErtx[3] - IErf[3])).real();
-                    dpdwz[0] += (1./(2.*Pi))*((0.5*(IErrz[2] - IEttz[2] - IEffz[2]) - IErtz[2]).real()
+                    dpdwz[0] += (1./(2.*Pi))*pow(r,2)*((0.5*(IErrz[2] - IEttz[2] - IEffz[2]) - IErtz[2]).real()
                                             + (0.5*(IErrz[3] - IEttz[3] - IEffz[3]) - IErtz[3])).real();
 
-                    dpdwx[1] +=  (1./(4.*Pi))*((0.5*(IHrrx[2] - IHttx[2] - IHffx[2]) + IHrtx[2] - IHrf[2]).real()
+                    dpdwx[1] +=  (1./(4.*Pi))*pow(r,2)*((0.5*(IHrrx[2] - IHttx[2] - IHffx[2]) + IHrtx[2] - IHrf[2]).real()
                                              + (0.5*(IHrrx[3] - IHttx[3] - IHffx[3]) + IHrtx[3] - IHrf[3])).real();
-                    dpdwz[1] +=  (1./(2.*Pi))*((0.5*(IHrrz[2] - IHttz[2] - IHffz[2]) - IHrtz[2]).real()
+                    dpdwz[1] +=  (1./(2.*Pi))*pow(r,2)*((0.5*(IHrrz[2] - IHttz[2] - IHffz[2]) - IHrtz[2]).real()
                                              + (0.5*(IHrrz[3] - IHttz[3] - IHffz[3]) - IHrtz[3])).real();
 
-                    dpdwx[2] +=  (1./(4.*Pi))*((0.5*(IErrx[0] - IEttx[0] - IEffx[0]) + IErtx[0] - IErf[0])).real();
-                    dpdwz[2] +=  (1./(2.*Pi))*((0.5*(IErrz[0] - IEttz[0] - IEffz[0]) - IErtz[0])).real();
+                    dpdwx[2] +=  (1./(4.*Pi))*pow(r,2)*((0.5*(IErrx[0] - IEttx[0] - IEffx[0]) + IErtx[0] - IErf[0])).real();
+                    dpdwz[2] +=  (1./(2.*Pi))*pow(r,2)*((0.5*(IErrz[0] - IEttz[0] - IEffz[0]) - IErtz[0])).real();
 
-                    dpdwx[3] +=  (1./(4.*Pi))*((0.5*(IHrrx[0] - IHttx[0] - IHffx[0]) + IHrtx[0] - IHrf[0])).real();
-                    dpdwz[3] +=  (1./(2.*Pi))*((0.5*(IHrrz[0] - IHttz[0] - IHffz[0]) - IHrtz[0])).real();
+                    dpdwx[3] +=  (1./(4.*Pi))*pow(r,2)*((0.5*(IHrrx[0] - IHttx[0] - IHffx[0]) + IHrtx[0] - IHrf[0])).real();
+                    dpdwz[3] +=  (1./(2.*Pi))*pow(r,2)*((0.5*(IHrrz[0] - IHttz[0] - IHffz[0]) - IHrtz[0])).real();
 
-                    dpdwx[4] +=  (1./(4.*Pi))*((0.5*(IErrx[1] - IEttx[1] - IEffx[1]) + IErtx[1] - IErf[1])).real();
-                    dpdwz[4] +=  (1./(2.*Pi))*((0.5*(IErrz[1] - IEttz[1] - IEffz[1]) - IErtz[1])).real();
+                    dpdwx[4] +=  (1./(4.*Pi))*pow(r,2)*((0.5*(IErrx[1] - IEttx[1] - IEffx[1]) + IErtx[1] - IErf[1])).real();
+                    dpdwz[4] +=  (1./(2.*Pi))*pow(r,2)*((0.5*(IErrz[1] - IEttz[1] - IEffz[1]) - IErtz[1])).real();
 
-                    dpdwx[5] +=  (1./(4.*Pi))*((0.5*(IHrrx[1] - IHttx[1] - IHffx[1]) + IHrtx[1] - IHrf[1])).real();
-                    dpdwz[5] +=  (1./(2.*Pi))*((0.5*(IHrrz[1] - IHttz[1] - IHffz[1]) - IHrtz[1])).real();
+                    dpdwx[5] +=  (1./(4.*Pi))*pow(r,2)*((0.5*(IHrrx[1] - IHttx[1] - IHffx[1]) + IHrtx[1] - IHrf[1])).real();
+                    dpdwz[5] +=  (1./(2.*Pi))*pow(r,2)*((0.5*(IHrrz[1] - IHttz[1] - IHffz[1]) - IHrtz[1])).real();
 
 
 
@@ -678,7 +658,7 @@ outz.close();
 cout << "DPx : " << (DPx[0] + DPx[1] + DPx[2] + DPx[3] + DPx[4] + DPx[5]).real() 
      << " +- " << (DPx[0] + DPx[1] + DPx[2] + DPx[3] + DPx[4] + DPx[5]).imag() << endl;
 cout << "DPz : " << (DPz[0] + DPz[1] + DPz[2] + DPz[3] + DPz[4] + DPz[5]).real() 
-     << " +- " << (DPz[0] + DPz[1] + DPz[2] + DPz[3] + DPz[4] + DPz[5]).real() << endl; 
+     << " +- " << (DPz[0] + DPz[1] + DPz[2] + DPz[3] + DPz[4] + DPz[5]).imag() << endl; 
 
 } //end void
 
@@ -873,8 +853,8 @@ void LMTsolver(SimulationConfig& config){
             outx.precision(17);
             outx << "vv\tb\tDPExInt\t\t\tDPHxInt\t\t\tDPExScat\t\t\tDPHxScat\t\t\tDPExExt\t\t\tDPHxExt\t\t\tDPx\n";
             
-            auto errorfilenamex = generate_AMT_path(config, "x", "error_");
-            std::ofstream eout(errorfilenamex);
+            auto errorfilenamex = generate_LMT_path(config, "x", "error_");
+            std::ofstream eoutx(errorfilenamex);
             eoutx.precision(17);
             eoutx << "vv\tb\terrDPExInt\t\t\terrDPHxInt\t\t\terrDPExScat\t\t\terrDPHxScat\t\t\terrDPExExt\t\t\terrDPHxExt\n";
 
@@ -883,8 +863,8 @@ void LMTsolver(SimulationConfig& config){
             outz.precision(17);
             outz << "vv\tb\tDPEzInt\t\t\tDPHzInt\t\t\tDPEzScat\t\t\tDPHzScat\t\t\tDPEzExt\t\t\tDPHzExt\t\t\tDPz\n";
             
-            auto errorfilenamez = generate_AMT_path(config, "z", "error_");
-            std::ofstream eout(errorfilenamez);
+            auto errorfilenamez = generate_LMT_path(config, "z", "error_");
+            std::ofstream eoutz(errorfilenamez);
             eoutz.precision(17);
             eoutz << "vv\tb\terrDPEzInt\t\t\terrDPHzInt\t\t\terrDPEzScat\t\t\terrDPHzScat\t\t\terrDPEzExt\t\t\terrDPHzExt\n";
 
@@ -907,7 +887,7 @@ void LMTsolver(SimulationConfig& config){
 
                 // Calculate the error
                 double errorPx = fabs(Px - previousPx[i]);
-                double errorPy = fabs(Py - previousLy[i]);
+                double errorPz = fabs(Pz - previousPz[i]);
                 double relativeError = (0.5*errorPx / fabs(Px))+(0.5*errorPz / fabs(Pz));
 
                 // Accumulate the relative error
@@ -1036,7 +1016,7 @@ void LMTsolver(SimulationConfig& config){
             outx.precision(17);
             outx << "vv\tb\tDPExInt\t\t\tDPHxInt\t\t\tDPExScat\t\t\tDPHxScat\t\t\tDPExExt\t\t\tDPHxExt\t\t\tDPx\n";
             
-            auto errorfilenamex = generate_AMT_path(config, "x", "error_");
+            auto errorfilenamex = generate_LMT_path(config, "x", "error_");
             std::ofstream eoutx(errorfilenamex);
             eoutx.precision(17);
             eoutx << "vv\tb\terrDPExInt\t\t\terrDPHxInt\t\t\terrDPExScat\t\t\terrDPHxScat\t\t\terrDPExExt\t\t\terrDPHxExt\n";
@@ -1046,7 +1026,7 @@ void LMTsolver(SimulationConfig& config){
             outz.precision(17);
             outz << "vv\tb\tDPEzInt\t\t\tDPHzInt\t\t\tDPEzScat\t\t\tDPHzScat\t\t\tDPEzExt\t\t\tDPHzExt\t\t\tDPz\n";
             
-            auto errorfilenamez = generate_AMT_path(config, "z", "error_");
+            auto errorfilenamez = generate_LMT_path(config, "z", "error_");
             std::ofstream eoutz(errorfilenamez);
             eoutz.precision(17);
             eoutz << "vv\tb\terrDPEzInt\t\t\terrDPHzInt\t\t\terrDPEzScat\t\t\terrDPHzScat\t\t\terrDPEzExt\t\t\terrDPHzExt\n";
@@ -1067,26 +1047,44 @@ void LMTsolver(SimulationConfig& config){
             double relativeError = (0.5*errorPx / fabs(Px))+(0.5*errorPz / fabs(Pz));
 
             // Here print the total momentum
-            out << config.velocity << '\t'
-                << config.b << '\t'
-                << DLy[0].real() << '\t'
-                << DLy[1].real() << '\t'
-                << DLy[2].real() << '\t'
-                << DLy[3].real() << '\t'
-                << DLy[4].real() << '\t'
-                << DLy[5].real() << '\t'
-                << Ly << '\n';
-            eout << config.velocity << '\t'
+            outx << config.velocity << '\t'
                  << config.b << '\t'
-                 << DLy[0].imag() << '\t'
-                 << DLy[1].imag() << '\t'
-                 << DLy[2].imag() << '\t'
-                 << DLy[3].imag() << '\t'
-                 << DLy[4].imag() << '\t'
-                 << DLy[5].imag() << '\n';
+                 << DPx[0].real() << '\t'
+                 << DPx[1].real() << '\t'
+                 << DPx[2].real() << '\t'
+                 << DPx[3].real() << '\t'
+                 << DPx[4].real() << '\t'
+                 << DPx[5].real() << '\t'
+                 << Px << '\n';
+            eoutx << config.velocity << '\t'
+                  << config.b << '\t'
+                  << DPx[0].imag() << '\t'
+                  << DPx[1].imag() << '\t'
+                  << DPx[2].imag() << '\t'
+                  << DPx[3].imag() << '\t'
+                  << DPx[4].imag() << '\t'
+                  << DPx[5].imag() << '\n';
+            outz << config.velocity << '\t'
+                 << config.b << '\t'
+                 << DPz[0].real() << '\t'
+                 << DPz[1].real() << '\t'
+                 << DPz[2].real() << '\t'
+                 << DPz[3].real() << '\t'
+                 << DPz[4].real() << '\t'
+                 << DPz[5].real() << '\t'
+                 << Pz << '\n';
+            eoutz << config.velocity << '\t'
+                  << config.b << '\t'
+                  << DPz[0].imag() << '\t'
+                  << DPz[1].imag() << '\t'
+                  << DPz[2].imag() << '\t'
+                  << DPz[3].imag() << '\t'
+                  << DPz[4].imag() << '\t'
+                  << DPz[5].imag() << '\n';
 
-            // Update previousLy for the next iteration
-            previousLy = Ly;
+            // Update previousP for the next iteration
+            previousPx = Px;
+            previousPz = Pz;
 
             // Calculate the average relative error
             mout << config.Lmax << '\t' << relativeError << '\n';
@@ -1104,8 +1102,10 @@ void LMTsolver(SimulationConfig& config){
             }
 
             // Close the files
-            out.close();
-            eout.close();
+            outx.close();
+            eoutx.close();
+            outz.close();
+            eoutz.close();
 
             // Check if the threshold was reached
             if (thresholdReached) {

@@ -1,6 +1,6 @@
-// g++ -Iinclude -Iinclude/Dielectric/DrudeAl -c src/main.cpp -o build/main.o -lcomplex_bessel -w && g++ build/IN51.o build/main.o -o DrudeAl_AMTsolver_L51.out -lcomplex_bessel -w
+// g++ -Iinclude -Iinclude/Dielectric/DrudeAl -c src/main.cpp -o build/main.o -lcomplex_bessel -w && g++ build/IN51.o build/main.o -o DrudeAl_LMTsolver_L51.out -lcomplex_bessel -w
 
-#include "AMT.h"
+#include "LMT.h"
 //*********************************************************************************************************
 //********************************************** MAIN PROGRAM *********************************************
 int main(int argc, char** argv){
@@ -18,7 +18,7 @@ int main(int argc, char** argv){
     double vInit = std::numeric_limits<double>::quiet_NaN();
     double vFin  = std::numeric_limits<double>::quiet_NaN();
 
-    CLI::App app{"Angular Momentum Transfer"};
+    CLI::App app{"Linear Momentum Transfer"};
 
     app.add_option("-a", a, "Radius of the nanoparticle in nanometers [nm]")->default_val(1.0);
     app.add_option("-b", b, "Impact parameter (distance from the beam to the center of nanoparticle) in nanometers [nm]")->default_val(1.5);
@@ -91,8 +91,10 @@ int main(int argc, char** argv){
     // 3-Calls the Gauss - Konrod function
     Omegas(xi, xk, xg);
 
-    AMTsolver(config);
-    //parallelAMTsolver(config);    
+    LMTsolver(config);
+    //dcomplex DPx[6]; 
+    //dcomplex DPz[6];
+    //DP(config, DPx, DPz);    
  
 return(0);
 
