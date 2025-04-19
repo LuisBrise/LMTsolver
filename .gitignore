@@ -31,12 +31,14 @@
 *.exe
 *.out
 *.app
+*.sh
 
 #Folder
 complex_bessel-master/
 build/
 results/
 .vscode/
+run/
 
 # Text Files
 *.txt

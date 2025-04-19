@@ -3,13 +3,13 @@
 
 cff-version: 1.2.0
 title: >-
-  Angular momentum transfer from swift electrons to
+  Linear momentum transfer from swift electrons to
   spherical nanoparticles
 message: 'If you use this software, please cite it as below.'
 type: software
 authors:
-  - given-names: Jorge Luis
-    family-names: Briseño-Gómez
+  - given-names: Jesús
+    family-names: Castrejón-Figueroa
     email: jorgeluisbrisenio@ciencias.unam.mx
     affiliation: UNAM
     orcid: 'https://orcid.org/0000-0001-8412-4868'

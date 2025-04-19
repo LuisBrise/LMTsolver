@@ -24,6 +24,10 @@ struct SimulationConfig {
     const bool isVScan;
     const bool isBScan;
     const bool isBvsVContour;
+    double bInit; // Initial value of impact parameter in scan
+    double bFin;  // Final value of impact parameter in scan 
+    double vvInit;  // Initial value of speed in scan
+    double vvFin;   // Final value of speed in scan
     const double errorThreshold;
     const int numOfPoints; // Number of points for b
     int minLmax; // Minimum multipolar order
@@ -34,6 +38,7 @@ struct SimulationConfig {
     SimulationConfig(std::string mat, int lmax, 
                      double np_radius, double impact_param, double v,
                      bool vscan, bool bscan, bool bvsv,
+                     double bi, double bf, double vi, double vf,
                      double err_thresh, int num_points, int minL,
                      std::string tmstmp)
         : material(std::move(mat)),
@@ -44,6 +49,10 @@ struct SimulationConfig {
           isVScan(vscan),
           isBScan(bscan),
           isBvsVContour(bvsv),
+          bInit(bi),
+          bFin(bf),
+          vvInit(vi),
+          vvFin(vf),
           errorThreshold(err_thresh),
           numOfPoints(num_points),
           minLmax(minL),

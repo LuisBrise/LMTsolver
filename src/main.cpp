@@ -13,6 +13,11 @@ int main(int argc, char** argv){
     double threshold;
     int numOfPoints, minLmax;
 
+    double bInit = std::numeric_limits<double>::quiet_NaN();
+    double bFin  = std::numeric_limits<double>::quiet_NaN();
+    double vInit = std::numeric_limits<double>::quiet_NaN();
+    double vFin  = std::numeric_limits<double>::quiet_NaN();
+
     CLI::App app{"Angular Momentum Transfer"};
 
     app.add_option("-a", a, "Radius of the nanoparticle in nanometers [nm]")->default_val(1.0);
@@ -20,7 +25,13 @@ int main(int argc, char** argv){
     app.add_option("-v", v, "Electron velocity (as a fraction of the speed of light, c)")->default_val(0.7)->check(CLI::Range(0.0, 0.999));
     
     app.add_flag("--vscan", isVScan, "Enable scan over different electron velocities");
+    app.add_option("--vinit", vInit, "Initial value of speed in scan");
+    app.add_option("--vfin", vFin, "Final value of speed in scan");
+    
     app.add_flag("--bscan", isBScan, "Enable scan over different impact parameters");
+    app.add_option("--binit", bInit, "Initial value of impact parameter in scan");
+    app.add_option("--bfin", bFin, "Final value of impact parameter in scan");
+    
     app.add_flag("--contour", isBvsVContour, "Enable contour plot scan of angular momentum transfer as a function of velocity and impact parameter");
     
     app.add_option("-e", threshold, "Convergence threshold for the multipolar convergence")->default_val(pow(10, -4));
@@ -31,8 +42,25 @@ int main(int argc, char** argv){
 
     // Validación
     if (b <= a) {
-        std::cerr << "Error: Impact parameter b (" << b << ") must be greater than NP radius (" << a << ")." << std::endl;
-        return 1;
+        cout << "Error: Impact parameter b (" << b << ") must be greater than NP radius (" << a << ")." << std::endl;
+        cout << "Assigning value of " << a + 1.0 << " nm to b" << endl;
+        b = a + 1.0;
+    }
+
+    // Assign default values after parsing
+    if (isBScan) {
+        if (std::isnan(bInit)) bInit = a + 0.5;
+        if (std::isnan(bFin))  bFin  = a + 10.5;
+    }
+    if (isVScan) {
+        if (std::isnan(vInit)) vInit = 0.50;
+        if (std::isnan(vFin))  vFin  = 0.95;
+    }
+    if (isBvsVContour) {
+        if (std::isnan(bInit)) bInit = a + 0.5;
+        if (std::isnan(bFin))  bFin  = a + 10.5;
+        if (std::isnan(vInit)) vInit = 0.50;
+        if (std::isnan(vFin))  vFin  = 0.95;
     }
 
     cout.precision(17);    
@@ -49,6 +77,10 @@ int main(int argc, char** argv){
                             isVScan,
                             isBScan,
                             isBvsVContour,
+                            bInit,
+                            bFin,
+                            vInit,
+                            vFin,
                             threshold,     // error threshold
                             numOfPoints,              // number of points in the scan or contour
                             minLmax,              // min value of Lmax for multipolar convergence
