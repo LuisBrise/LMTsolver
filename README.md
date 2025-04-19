@@ -27,13 +27,13 @@ git clone https://github.com/yourusername/AMTsolver.git
 cd AMTsolver
 mkdir build
 
-## Basic compilation
-g++ -O2 -std=c++17 -Iinclude -c src/main.cpp -o build/main.out -lcomplex_bessel
-g++ build/IN51.out build/main.out -o AMTsolverL51 -lcomplex_bessel
+# Standard build
+g++ -Iinclude -Iinclude/Dielectric/DrudeAl -c src/main.cpp -o build/main.out -lcomplex_bessel
+g++ build/IN51.out build/main.out -o bin/AMTsolver -lcomplex_bessel
 
-## With OpenMP support
+# Parallel build (OpenMP)
 g++ -fopenmp -O2 -std=c++17 -Iinclude -c src/main.cpp -o build/main.out -lcomplex_bessel
-g++ build/IN51.out build/main.out -o AMTsolverL51 -lcomplex_bessel -fopenmp
+g++ build/IN51.out build/main.out -o bin/AMTsolver -lcomplex_bessel -fopenmp```
 
 ## Basic Command (example)
 ./AMTsolverL51 -a <radius_nm> -b <impact_param_nm> -v <velocity>
@@ -48,7 +48,7 @@ g++ build/IN51.out build/main.out -o AMTsolverL51 -lcomplex_bessel -fopenmp
 
 ## Command Line Options
 
-| Option       | Description                                      | Default Value |
+| Option       | Description                                      | Default Value |  Constrains |
 |--------------|--------------------------------------------------|---------------|
 | `-a`         | Nanoparticle radius (nm)                         | 1.0           |
 | `-b`         | Impact parameter (nm)                            | 1.5           |
