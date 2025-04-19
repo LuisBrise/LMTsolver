@@ -6,6 +6,7 @@
 *.slo
 *.lo
 *.obj
+*.o
 
 # Precompiled Headers
 *.gch
@@ -34,11 +35,8 @@
 #Folder
 complex_bessel-master/
 build/
-Excel/
-Results/
+results/
 .vscode/
-OLD/
-OUT/
 
 # Text Files
 *.txt
