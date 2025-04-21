@@ -111,6 +111,71 @@ dcomplex PsiM(int l, int m, double w, double b,double betav, dcomplex AA){
 double gam = 1./sqrt(1.0 - betav*betav);
 return -(4.*m)*Pi*pow(1i,1-l)*betav*w*AA*BesselK(m,w*b/(betav*Cspeed*gam))/(Cspeed*Cspeed*l*(l+1));
 }
+//**********************************************************************
+// Scattering functions (García de Abajo) quadruple prec
+//********************************************************************** 
+qcomplex imag_unit{0, 1};
+
+qcomplex  qA(int l, int m, double betav){
+
+quadruple qbetav = quadruple(betav);
+quadruple gam = quadruple(1./sqrt(1.0 - pow(betav,2.0)));
+qcomplex  res = qcomplex(0);
+
+if(m >= 0){
+for (int j = m; j <= l; ++j){
+    res += pow(qbetav,-(l+1))*pow(imag_unit,l-j)*factorial2(2*l+1)*integrals.III[l-1][m][j]
+    /(pow(2.*gam,j)*factorial(l-j)*factorial((j-m)/2)*factorial((j+m)/2));
+    }
+return res;
+ } 
+else {
+    return pow(-1.,abs(m))*qA(l,abs(m),betav);
+ }
+}
+
+qcomplex  qB(int l, int m, double betav){
+return qA(l,m+1,betav)*sqrt((l+m+1)*(l-m)) - qA(l,m-1,betav)*sqrt((l-m+1)*(l+m));
+}
+
+//This is where the Scattering functions are going to be initialized
+qcomplex qAA[LSmax][2*LSmax+1], qBB[LSmax][2*LSmax+1];
+
+void Initialize_qScatteringFunctions(qcomplex qAA[LSmax][2*LSmax+1], 
+                               qcomplex qBB[LSmax][2*LSmax+1],
+                               double vv)
+{
+for (int l = 1; l <= LSmax; ++l){
+    for (int m = -l; m <= l; ++m){ 
+    qAA[l-1][l+m] = qA(l,m,vv);
+    qBB[l-1][l+m] = qB(l,m,vv);
+    }
+}
+}
+
+qcomplex qBesselK(int n, double x){
+    //return boost::math::cyl_bessel_k(n,x);
+    dcomplex z = static_cast<dcomplex>(x);
+    return qcomplex(besselK(n,z));
+}  
+
+qcomplex  qPsiE(int l, int m, double w, double b,double betav, qcomplex qBB){
+double gam = 1./sqrt(1.0 - betav*betav);
+quadruple qgam = quadruple(gam);
+quadruple qw = quadruple(w);
+quadruple qbetav = quadruple(betav);
+quadruple qCspeed = quadruple(Cspeed);
+return -2.*Pi*pow(imag_unit,1-l)*qw*qBB*qBesselK(m,w*b/(betav*Cspeed*gam))/(qCspeed*qCspeed*qgam*l*(l+1));
+}
+
+qcomplex qPsiM(int l, int m, double w, double b,double betav, qcomplex qAA){
+double gam = 1./sqrt(1.0 - betav*betav);
+quadruple qgam = quadruple(gam);
+quadruple qw = quadruple(w);
+quadruple qbetav = quadruple(betav);
+quadruple qCspeed = quadruple(Cspeed);
+return -(4.*m)*Pi*pow(imag_unit,1-l)*qbetav*qw*qAA*qBesselK(m,w*b/(betav*Cspeed*gam))/(qCspeed*qCspeed*l*(l+1));
+}
 
 //**********************************************************************
 // Polarizabilities

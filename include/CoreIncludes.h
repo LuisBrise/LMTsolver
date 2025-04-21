@@ -15,7 +15,8 @@
 #include <complex>     // Complex numbers
 #include <vector>      // STL containers (if used)
 #include <memory>      // Smart pointers (if used)
-#include <quadmath.h>  // To include quadruple precission, requires to compile with -lquadmath
+//#include <quadmath.h>  // To include quadruple precission, requires to compile with -lquadmath
+#include <omp.h>  // Add this at the top of your file
 
 // Spherical Bessel (Hankel) funcions with *complex argument* (very important) for the scatterred fields. 
 // Only found in SLATEC project (FORTRAN 77).

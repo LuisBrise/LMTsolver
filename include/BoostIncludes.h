@@ -9,6 +9,11 @@
 #include <boost/math/quadrature/gauss_kronrod.hpp> 
 #include <boost/math/quadrature/exp_sinh.hpp>
 
+#include <boost/multiprecision/cpp_bin_float.hpp>
+#include <boost/multiprecision/cpp_complex.hpp>
+typedef boost::multiprecision::cpp_complex<50> qcomplex;          // Defines complex number with double entries.
+typedef boost::multiprecision::cpp_bin_float_50  quadruple;
+
 double Pi = boost::math::constants::pi<double>();
 
 #endif

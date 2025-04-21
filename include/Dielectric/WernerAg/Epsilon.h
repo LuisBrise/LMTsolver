@@ -8,15 +8,15 @@ dcomplex LL(double w, double w0, double G, double A) {
 }
 
 dcomplex eps(double w){
-return 1. + LL( 0.0*eV,     0.065*eV,  98.4*eV*eV)
-          + LL( 1.0*eV,    93.800*eV, 103.9*eV*eV)
-          + LL( 4.9*eV,     0.700*eV,  23.8*eV*eV)
-          + LL(10.3*eV,    22.000*eV, 318.3*eV*eV)
-          + LL(13.2*eV,     6.300*eV,  89.6*eV*eV)
-          + LL(21.2*eV,     3.300*eV,  63.5*eV*eV)
-          + LL(30.2*eV,     3.700*eV,  43.3*eV*eV)
-          + LL(43.0*eV,    16.700*eV, 313.3*eV*eV)
-          + LL(65.7*eV,    38.800*eV, 519.9*eV*eV)
+return 1. + LL(w,  0.0*eV,     0.065*eV,  98.4*eV*eV)
+          + LL(w,  1.0*eV,    93.800*eV, 103.9*eV*eV)
+          + LL(w,  4.9*eV,     0.700*eV,  23.8*eV*eV)
+          + LL(w, 10.3*eV,    22.000*eV, 318.3*eV*eV)
+          + LL(w, 13.2*eV,     6.300*eV,  89.6*eV*eV)
+          + LL(w, 21.2*eV,     3.300*eV,  63.5*eV*eV)
+          + LL(w, 30.2*eV,     3.700*eV,  43.3*eV*eV)
+          + LL(w, 43.0*eV,    16.700*eV, 313.3*eV*eV)
+          + LL(w, 65.7*eV,    38.800*eV, 519.9*eV*eV);
 }
 
 // Order N of the gaussian quadrature (must be odd), the integral is

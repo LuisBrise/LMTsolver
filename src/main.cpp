@@ -91,7 +91,7 @@ int main(int argc, char** argv){
     // 3-Calls the Gauss - Konrod function
     Omegas(xi, xk, xg);
 
-    LMTsolver(config);
+    parallelLMTsolver(config);
     //dcomplex DPx[6]; 
     //dcomplex DPz[6];
     //DP(config, DPx, DPz);    

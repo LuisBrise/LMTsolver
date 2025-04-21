@@ -624,16 +624,18 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 } //for l1
 
 // Here print the dldw's, for each, w, l
-outx << vv << '\t'
-     << b << '\t'
+outx << config.velocity << '\t'
+     << config.b << '\t'
+     << w        << '\t'
      << dpdwx[0] << '\t'
      << dpdwx[1] << '\t'
      << dpdwx[2] << '\t'
      << dpdwx[3] << '\t'
      << dpdwx[4] << '\t'
      << dpdwx[5] << '\n';
-outz << vv << '\t'
-     << b << '\t'
+outz << config.velocity << '\t'
+     << config.b << '\t'
+     << w        << '\t'
      << dpdwz[0] << '\t'
      << dpdwz[1] << '\t'
      << dpdwz[2] << '\t'
@@ -723,7 +725,7 @@ void LMTsolver(SimulationConfig& config){
                     + (config.vvFin-config.vvInit)*i/config.numOfPoints);
                 //Initialize Scattering Functions AA and BB when vv once vv stops changing for LSmax
                 Initialize_ScatteringFunctions(AA, BB, config.velocity);
-                printf("v : %3.2f   -->   ", config.velocity);
+                printf("v : %3.2f \n", config.velocity);
                 DP(config, DPx, DPz);
                 
                 double Px=0.0;
@@ -876,7 +878,7 @@ void LMTsolver(SimulationConfig& config){
                 config.b = (config.bInit 
                     + (config.bFin-config.bInit)*i/config.numOfPoints);
 
-                printf("b : %4.1f   -->   ", config.b);
+                printf("b : %4.1f \n", config.b);
                 DP(config, DPx, DPz);
                 double Px=0.0;
                 double Pz=0.0;
@@ -1122,6 +1124,373 @@ void LMTsolver(SimulationConfig& config){
         cout << "Execution time: " << duration.count() << " seconds." << std::endl;
         mout << "Execution time: " << duration.count() << " seconds." << std::endl;
         mout.close();
+    }
+
+        
+} // end void
+
+void parallelLMTsolver(SimulationConfig& config){
+
+    print_initial_message(config);
+    
+    dcomplex DPx[6]; 
+    dcomplex DPz[6];
+
+    if (config.isVScan){
+
+        // First initialize scattering functions for all velocities
+        std::vector<double> velocities(config.numOfPoints + 1);
+        for (int i = 0; i <= config.numOfPoints; ++i) {
+            velocities[i] = (config.vvInit + (config.vvFin-config.vvInit)*i/config.numOfPoints);
+        }
+
+        // Start the timer
+        auto start = std::chrono::high_resolution_clock::now();
+        //
+        // Start loop for Lmax
+        //
+        for (config.Lmax = config.minLmax; config.Lmax <= LSmax ; config.Lmax++){
+            // Print dynamic line
+            cout << "Progress: " 
+                      << "Lmax : " << config.Lmax
+                      << " | b : " << config.b << " nm"
+                      << " | NP radius: " << config.a << " nm" << endl;
+                      //
+            auto filenamex = generate_LMT_path(config, "x");
+            std::ofstream outx(filenamex);
+            outx.precision(17);
+            outx << "vv\tb\tDPExInt\t\t\tDPHxInt\t\t\tDPExScat\t\t\tDPHxScat\t\t\tDPExExt\t\t\tDPHxExt\t\t\tDPxTot\n";
+            
+            auto errorfilenamex = generate_LMT_path(config, "x", "error_");
+            std::ofstream eoutx(errorfilenamex);
+            eoutx.precision(17);
+            eoutx << "vv\tb\terrDPExInt\t\t\terrDPHxInt\t\t\terrDPExScat\t\t\terrDPHxScat\t\t\terrDPExExt\t\t\terrDPHxExt\n";
+
+            auto filenamez = generate_LMT_path(config, "z");
+            std::ofstream outz(filenamez);
+            outz.precision(17);
+            outz << "vv\tb\tDPEzInt\t\t\tDPHzInt\t\t\tDPEzScat\t\t\tDPHzScat\t\t\tDPEzExt\t\t\tDPHzExt\t\t\tDPzTot\n";
+            
+            auto errorfilenamez = generate_LMT_path(config, "z", "error_");
+            std::ofstream eoutz(errorfilenamez);
+            eoutz.precision(17);
+            eoutz << "vv\tb\terrDPEzInt\t\t\terrDPHzInt\t\t\terrDPEzScat\t\t\terrDPHzScat\t\t\terrDPEzExt\t\t\terrDPHzExt\n";
+
+            #pragma omp parallel
+            {
+                dcomplex DPx_local[6], DPz_local[6];
+                std::ostringstream outx_local, eoutx_local, outz_local, eoutz_local;
+                outx_local.precision(17), eoutx_local.precision(17), outz_local.precision(17), eoutz_local.precision(17);
+
+                // Distribute loop iterations across threads
+                #pragma omp for schedule(static)  // or schedule(dynamic) if iterations vary in runtime
+                for (int i = 0; i <= config.numOfPoints; ++i)
+                {
+                    // Clear stringstreams for each iteration
+                    outx_local.str(""); outx_local.clear();
+                    eoutx_local.str(""); eoutx_local.clear();
+                    outz_local.str(""); outz_local.clear();
+                    eoutz_local.str(""); eoutz_local.clear();
+
+                    double current_velocity = velocities[i];
+                    //Initialize Scattering Functions AA and BB when vv once vv stops changing for LSmax
+                    #pragma omp critical(scattering_init)
+                    {
+                        Initialize_ScatteringFunctions(AA, BB, current_velocity);
+                    }
+                    printf("v : %3.2f (Thread %d)\n", current_velocity, omp_get_thread_num());
+                    
+                    // Make a thread-local copy of config to avoid race conditions
+                    SimulationConfig config_local = config;
+                    config_local.velocity = current_velocity;
+                    
+                    DP(config_local, DPx_local, DPz_local);
+                    
+                    double Px=0.0, Pz=0.0;
+
+                    for (int rr = 0; rr < 6; ++rr){ 
+                        Px += DPx_local[rr].real();
+                        Pz += DPz_local[rr].real();}
+
+                   // Prepare output strings
+
+                    outx_local << current_velocity << '\t' << config.b << '\t';
+                    eoutx_local << current_velocity << '\t' << config.b << '\t';
+                    outz_local << current_velocity << '\t' << config.b << '\t';
+                    eoutz_local << current_velocity << '\t' << config.b << '\t';
+                    
+                    for (int rr = 0; rr < 6; ++rr) {
+                        outx_local << DPx_local[rr].real() << '\t';
+                        eoutx_local << DPx_local[rr].imag() << '\t';
+                        outz_local << DPz_local[rr].real() << '\t';
+                        eoutz_local << DPz_local[rr].imag() << '\t';
+                    }
+                    
+                    outx_local << Px << '\n';
+                    eoutx_local << '\n';
+                    outz_local << Pz << '\n';
+                    eoutz_local << '\n';
+
+                    // Synchronized write to files
+                    #pragma omp critical(file_write)
+                    {
+                        outx << outx_local.str();
+                        eoutx << eoutx_local.str();
+                        outz << outz_local.str();
+                        eoutz << eoutz_local.str();
+                    }
+                }
+
+            }
+
+            // Close the files
+            outx.close();
+            eoutx.close();
+            outz.close();
+            eoutz.close();
+
+        }
+        // End the timer
+        auto end = std::chrono::high_resolution_clock::now();
+        // Calculate the duration
+        std::chrono::duration<double> duration = end - start;
+        // Print the duration in seconds
+        cout << "Execution time: " << duration.count() << " seconds." << std::endl;
+
+    }
+
+    else if (config.isBScan)
+    {
+        // First initialize scattering functions for all velocities
+        std::vector<double> bparameters(config.numOfPoints + 1);
+        for (int i = 0; i <= config.numOfPoints; ++i) {
+            bparameters[i] = (config.bInit + (config.bFin-config.bInit)*i/config.numOfPoints);
+        }
+
+        //Initialize Scattering Functions AA and BB when vv once vv stops changing for LSmax
+        Initialize_ScatteringFunctions(AA, BB, config.velocity);
+
+        // Start the timer
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // ********************************************************************************
+        // Start loop for Lmax
+        // ********************************************************************************
+        for (config.Lmax = config.minLmax; config.Lmax <= LSmax; config.Lmax++){
+
+            // Print dynamic line
+            cout << "Progress: " 
+                  << "Lmax : " << config.Lmax
+                  << " | v : " << config.velocity << "*c"
+                  << " | NP radius: " << config.a << " nm" << endl << endl;
+
+            auto filenamex = generate_LMT_path(config, "x");
+            std::ofstream outx(filenamex);
+            outx.precision(17);
+            outx << "vv\tb\tDPExInt\t\t\tDPHxInt\t\t\tDPExScat\t\t\tDPHxScat\t\t\tDPExExt\t\t\tDPHxExt\t\t\tDPx\n";
+            
+            auto errorfilenamex = generate_LMT_path(config, "x", "error_");
+            std::ofstream eoutx(errorfilenamex);
+            eoutx.precision(17);
+            eoutx << "vv\tb\terrDPExInt\t\t\terrDPHxInt\t\t\terrDPExScat\t\t\terrDPHxScat\t\t\terrDPExExt\t\t\terrDPHxExt\n";
+
+            auto filenamez = generate_LMT_path(config, "z");
+            std::ofstream outz(filenamez);
+            outz.precision(17);
+            outz << "vv\tb\tDPEzInt\t\t\tDPHzInt\t\t\tDPEzScat\t\t\tDPHzScat\t\t\tDPEzExt\t\t\tDPHzExt\t\t\tDPz\n";
+            
+            auto errorfilenamez = generate_LMT_path(config, "z", "error_");
+            std::ofstream eoutz(errorfilenamez);
+            eoutz.precision(17);
+            eoutz << "vv\tb\terrDPEzInt\t\t\terrDPHzInt\t\t\terrDPEzScat\t\t\terrDPHzScat\t\t\terrDPEzExt\t\t\terrDPHzExt\n";
+
+            // Parallel region - each thread gets private copies of DPx/DPz
+            #pragma omp parallel
+            {
+                dcomplex DPx_local[6], DPz_local[6];
+                std::ostringstream outx_local, eoutx_local, outz_local, eoutz_local;
+                outx_local.precision(17), eoutx_local.precision(17), outz_local.precision(17), eoutz_local.precision(17);
+
+                // Distribute loop iterations across threads
+                #pragma omp for schedule(static)  // or schedule(dynamic) if iterations vary in runtime
+                for (int i = 0; i <= config.numOfPoints; ++i)
+                {   
+                    // Clear stringstreams for each iteration
+                    outx_local.str(""); outx_local.clear();
+                    eoutx_local.str(""); eoutx_local.clear();
+                    outz_local.str(""); outz_local.clear();
+                    eoutz_local.str(""); eoutz_local.clear();
+
+                    double current_b = bparameters[i];
+
+                    printf("b : %4.1f (Thread %d)\n", current_b, omp_get_thread_num());
+                    // Make a thread-local copy of config to avoid race conditions
+                    SimulationConfig config_local = config;
+                    config_local.b = current_b;
+                    
+                    DP(config_local, DPx_local, DPz_local);
+
+                    double Px = 0.0, Pz = 0.0;
+
+                    for (int rr = 0; rr < 6; ++rr) { 
+                        Px += DPx_local[rr].real();
+                        Pz += DPz_local[rr].real();
+                    }
+
+                    // Prepare output strings
+                    outx_local << config.velocity << '\t' << current_b << '\t';
+                    eoutx_local << config.velocity << '\t' << current_b << '\t';
+                    outz_local << config.velocity << '\t' << current_b << '\t';
+                    eoutz_local << config.velocity << '\t' << current_b << '\t';
+                    
+                    for (int rr = 0; rr < 6; ++rr) {
+                        outx_local << DPx_local[rr].real() << '\t';
+                        eoutx_local << DPx_local[rr].imag() << '\t';
+                        outz_local << DPz_local[rr].real() << '\t';
+                        eoutz_local << DPz_local[rr].imag() << '\t';
+                    }
+                    
+                    outx_local << Px << '\n';
+                    eoutx_local << '\n';
+                    outz_local << Pz << '\n';
+                    eoutz_local << '\n';
+
+                    #pragma omp critical(file_write)
+                    {
+                        outx << outx_local.str();
+                        eoutx << eoutx_local.str();
+                        outz << outz_local.str();
+                        eoutz << eoutz_local.str();
+                    }
+                }
+            }
+
+            // Close the files
+            outx.close();
+            eoutx.close();
+            outz.close();
+            eoutz.close();
+
+        }
+
+
+        // End the timer
+        auto end = std::chrono::high_resolution_clock::now();
+        // Calculate the duration
+        std::chrono::duration<double> duration = end - start;
+        // Print the duration in seconds
+        cout << "Execution time: " << duration.count() << " seconds." << std::endl;
+
+        /*cout << "a = " << a / nm << "nm." << endl;
+        cout << "r = " << r / nm << "nm." << endl;
+        cout << "v = " << vv << "c." << endl;
+        cout << "bInit = " << bInit / nm << "nm." << endl;
+        cout << "bFin = " << bFin / nm << "nm." << endl;
+        cout << endl;*/
+    }
+    else if (config.isBvsVContour){
+        true;
+    }
+    else{
+
+        //Initialize Scattering Functions AA and BB when vv once vv stops changing for LSmax
+        Initialize_ScatteringFunctions(AA, BB, config.velocity);
+
+        // Start the timer
+        auto start = std::chrono::high_resolution_clock::now();
+
+        // ********************************************************************************
+        // Start loop for Lmax
+        // ********************************************************************************
+        for (config.Lmax = config.minLmax; config.Lmax <= LSmax; config.Lmax++){
+
+            // Print dynamic line
+            cout << "Progress: " 
+                  << "Lmax : " << config.Lmax
+                  << " | v : " << config.velocity << "*c"
+                  << " | b : " << config.b << " nm"
+                  << " | NP radius: " << config.a << " nm" << endl << endl;
+
+            auto filenamex = generate_LMT_path(config, "x");
+            std::ofstream outx(filenamex);
+            outx.precision(17);
+            outx << "vv\tb\tDPExInt\t\t\tDPHxInt\t\t\tDPExScat\t\t\tDPHxScat\t\t\tDPExExt\t\t\tDPHxExt\t\t\tDPx\n";
+            
+            auto errorfilenamex = generate_LMT_path(config, "x", "error_");
+            std::ofstream eoutx(errorfilenamex);
+            eoutx.precision(17);
+            eoutx << "vv\tb\terrDPExInt\t\t\terrDPHxInt\t\t\terrDPExScat\t\t\terrDPHxScat\t\t\terrDPExExt\t\t\terrDPHxExt\n";
+
+            auto filenamez = generate_LMT_path(config, "z");
+            std::ofstream outz(filenamez);
+            outz.precision(17);
+            outz << "vv\tb\tDPEzInt\t\t\tDPHzInt\t\t\tDPEzScat\t\t\tDPHzScat\t\t\tDPEzExt\t\t\tDPHzExt\t\t\tDPz\n";
+            
+            auto errorfilenamez = generate_LMT_path(config, "z", "error_");
+            std::ofstream eoutz(errorfilenamez);
+            eoutz.precision(17);
+            eoutz << "vv\tb\terrDPEzInt\t\t\terrDPHzInt\t\t\terrDPEzScat\t\t\terrDPHzScat\t\t\terrDPEzExt\t\t\terrDPHzExt\n";
+
+            DP(config, DPx, DPz);
+            double Px=0.0;
+            double Pz=0.0;
+
+            for (int rr = 0; rr < 6; ++rr){ 
+                Px += DPx[rr].real();
+                Pz += DPz[rr].real();}
+
+
+            // Here print the total momentum
+            outx << config.velocity << '\t'
+                 << config.b << '\t'
+                 << DPx[0].real() << '\t'
+                 << DPx[1].real() << '\t'
+                 << DPx[2].real() << '\t'
+                 << DPx[3].real() << '\t'
+                 << DPx[4].real() << '\t'
+                 << DPx[5].real() << '\t'
+                 << Px << '\n';
+            eoutx << config.velocity << '\t'
+                  << config.b << '\t'
+                  << DPx[0].imag() << '\t'
+                  << DPx[1].imag() << '\t'
+                  << DPx[2].imag() << '\t'
+                  << DPx[3].imag() << '\t'
+                  << DPx[4].imag() << '\t'
+                  << DPx[5].imag() << '\n';
+            outz << config.velocity << '\t'
+                 << config.b << '\t'
+                 << DPz[0].real() << '\t'
+                 << DPz[1].real() << '\t'
+                 << DPz[2].real() << '\t'
+                 << DPz[3].real() << '\t'
+                 << DPz[4].real() << '\t'
+                 << DPz[5].real() << '\t'
+                 << Pz << '\n';
+            eoutz << config.velocity << '\t'
+                  << config.b << '\t'
+                  << DPz[0].imag() << '\t'
+                  << DPz[1].imag() << '\t'
+                  << DPz[2].imag() << '\t'
+                  << DPz[3].imag() << '\t'
+                  << DPz[4].imag() << '\t'
+                  << DPz[5].imag() << '\n';
+
+            // Close the files
+            outx.close();
+            eoutx.close();
+            outz.close();
+            eoutz.close();
+
+        }
+
+
+        // End the timer
+        auto end = std::chrono::high_resolution_clock::now();
+        // Calculate the duration
+        std::chrono::duration<double> duration = end - start;
+        // Print the duration in seconds
+        cout << "Execution time: " << duration.count() << " seconds." << std::endl;
     }
 
         
