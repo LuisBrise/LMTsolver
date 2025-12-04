@@ -1129,7 +1129,7 @@ void LMTsolver(SimulationConfig& config){
         
 } // end void
 
-void parallelLMTsolver(SimulationConfig& config){
+/*void parallelLMTsolver(SimulationConfig& config){
 
     print_initial_message(config);
     
@@ -1381,12 +1381,12 @@ void parallelLMTsolver(SimulationConfig& config){
         // Print the duration in seconds
         cout << "Execution time: " << duration.count() << " seconds." << std::endl;
 
-        /*cout << "a = " << a / nm << "nm." << endl;
+        cout << "a = " << a / nm << "nm." << endl;
         cout << "r = " << r / nm << "nm." << endl;
         cout << "v = " << vv << "c." << endl;
         cout << "bInit = " << bInit / nm << "nm." << endl;
         cout << "bFin = " << bFin / nm << "nm." << endl;
-        cout << endl;*/
+        cout << endl; 
     }
     else if (config.isBvsVContour){
         true;
@@ -1494,4 +1494,4 @@ void parallelLMTsolver(SimulationConfig& config){
     }
 
         
-} // end void
+} // end void */
