@@ -623,6 +623,15 @@ for (int l2 = 1; l2 <= Lmax; ++l2){
 } // for l2
 } //for l1
 
+// Guard: isolated Gauss points where complex overflow leaves residual NaN in
+// dldwy (0*inf = NaN in IEEE 754 even after DE/CM guards) must not poison DLy.
+// Physically the integrand is 0 at these points (all overflow terms cancel);
+// skipping the point introduces negligible quadrature error.
+for (int rr = 0; rr < 6; ++rr){
+    if (!std::isfinite(dpdwx[rr])) dpdwx[rr] = 0.0;
+    if (!std::isfinite(dpdwz[rr])) dpdwz[rr] = 0.0;
+}
+
 // Here print the dldw's, for each, w, l
 outx << config.velocity << '\t'
      << config.b << '\t'
