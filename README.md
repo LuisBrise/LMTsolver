@@ -20,6 +20,17 @@ LMTsolver is a C++ program that calculates the spectral linear momentum (dP/dω)
 - complex_bessel library
 - CLI11 (for command line parsing)
 
+# # Instalar complex_bessel
+```bash
+cd /opt
+git clone --depth=1 https://github.com/joeydumont/complex_bessel.git
+cd complex_bessel
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
+make install
+```
+
 ## Installation
 
 ```bash
