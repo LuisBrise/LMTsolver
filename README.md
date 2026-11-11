@@ -105,6 +105,47 @@ results/
             └── simulation_parameters.txt       # Metadata
 ```
             
+## Install in Windows (not recomended)
+Do not use Windows native compilers, it won't work. Compile usign WSL within Powershell.
+
+In Powershell type:
+```bash
+wsl --install
+```
+
+Then after Ubuntu is configured in WSL:
+
+> **Important:** To avoid problems with CMake permissions and slow compilation times, make sure to move to a directory Linux native like `~` o `/home/user/` and not on top of the Windows drive (`/mnt/c/`)
+
+**1. Install dependencies**
+
+```bash
+sudo apt update
+sudo apt install build-essential git cmake gfortran libcli11-dev libboost-all-dev -y
+```
+
+Then install the complex_bessel library:
+
+```bash
+cd ~
+git clone [https://github.com/joeydumont/complex_bessel.git](https://github.com/joeydumont/complex_bessel.git)
+cd complex_bessel
+mkdir build && cd build
+cmake ..
+make
+sudo make install
+sudo ldconfig
+```
+
+Then compile the LMTsolver using make:
+
+```bash
+cd ~
+git clone [https://github.com/LuisBrise/LMTsolver.git](https://github.com/LuisBrise/LMTsolver.git)
+cd LMTsolver
+make
+```
+
 ## For citations
 @software{AMTsolver,
   author = {Jesús Castrejón-Figeroa and Jorge Luis Briseño-Gómez},
